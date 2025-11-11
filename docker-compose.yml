@@ -4,11 +4,18 @@ services:
   frontend:
     build:
       context: ./frontend
+    container_name: frontend
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - backend
 
   backend:
     build:
       context: ./backend
-    ports:
+    container_name: backend
+    expose:
       - "8080"
