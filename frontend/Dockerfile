@@ -1,4 +1,4 @@
-FROM cirruslabs/flutter:3.22.0 AS build
+FROM ghcr.io/cirruslabs/flutter:3.35.7 AS build
 
 WORKDIR /app
 COPY . .
