@@ -1,11 +1,16 @@
+FROM cirruslabs/flutter:3.22.0 AS build
+
+WORKDIR /app
+COPY . .
+RUN flutter pub get
+RUN flutter build web --release
+
 FROM nginx:stable-alpine
 
-COPY build/web /usr/share/nginx/html
-
-#nginx 설정 복사
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/build/web /usr/share/nginx/html
 
 EXPOSE 80
 EXPOSE 443
-
 CMD ["nginx", "-g", "daemon off;"]
+
