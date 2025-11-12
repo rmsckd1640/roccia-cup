@@ -2,7 +2,7 @@
 # Flutter / Dart 빌드 산출물, 캐시
 ############################
 # flutter build 결과물
-build/
+# build/
 
 # dart / flutter 캐시
 .dart_tool/
