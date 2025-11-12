@@ -6,7 +6,7 @@ services:
       context: ./frontend
     container_name: frontend
     expose:
-      - "80" #내부에서만 공개
+      - "8081" #내부에서만 공개
     depends_on:
       - backend
 
