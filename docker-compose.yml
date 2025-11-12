@@ -5,7 +5,7 @@ services:
     build:
       context: ./frontend
     container_name: frontend
-    expose:
+    ports:
       - "8081:80"
     depends_on:
       - backend
@@ -14,7 +14,7 @@ services:
     build:
       context: ./backend
     container_name: backend
-    expose:
+    ports:
       - "8080:8080"
     env_file:
       - .env.prod
