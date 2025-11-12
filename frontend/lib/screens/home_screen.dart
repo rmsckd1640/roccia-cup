@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('/api/scores/user?teamName=$teamName&userName=$userName');
+    final url = Uri.parse('https://roccia-cup.site/api/scores/user?teamName=$teamName&userName=$userName');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('/api/scores/submit');
+    final url = Uri.parse('https://roccia-cup.site/api/scores/submit');
     final body = {
       'teamName': teamName,
       'userName': userName,
@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('/api/scores/delete/$teamName/$userName/$sector');
+    final url = Uri.parse('https://roccia-cup.site/api/scores/delete/$teamName/$userName/$sector');
     final response = await http.delete(url);
 
     if (response.statusCode == 204) {
@@ -274,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (newTeam.isEmpty || newName.isEmpty) return;
 
-                    final url = Uri.parse('/api/users/update');
+                    final url = Uri.parse('https://roccia-cup.site/api/users/update');
                     final body = {
                       'teamName': _teamName,
                       'userName': _userName,

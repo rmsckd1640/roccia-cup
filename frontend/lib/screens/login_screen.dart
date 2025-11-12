@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (teamName.isEmpty || userName.isEmpty) return;
 
-    final url = Uri.parse('/api/users/login');
+    final url = Uri.parse('https://roccia-cup.site/api/users/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
