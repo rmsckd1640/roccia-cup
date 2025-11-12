@@ -1,9 +1,9 @@
-FROM ghcr.io/cirruslabs/flutter:3.35.7 AS build
+# FROM ghcr.io/cirruslabs/flutter:3.35.7 AS build
 
-WORKDIR /app
-COPY . .
-RUN flutter pub get
-RUN flutter build web --release
+# WORKDIR /app
+# COPY . .
+# RUN flutter pub get
+# RUN flutter build web --release
 
 FROM nginx:stable-alpine
 
