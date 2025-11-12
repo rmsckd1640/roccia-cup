@@ -76,7 +76,7 @@ class _RankingScreenState extends State<RankingScreen> {
     final userName = prefs.getString('userName') ?? '';
     _myTeamName = teamName;
 
-    final url = Uri.parse('/api/rankings');
+    final url = Uri.parse('https://roccia-cup.site/api/rankings');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
