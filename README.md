@@ -46,21 +46,21 @@ Roccia Cup은 클라이밍 동아리 대회에서의 점수 집계와 랭킹 계
   <img src="https://img.shields.io/badge/Route 53-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white"/>
 </div>
 
-
-
 ---
 
-## 🖥 System Architecture
+## 📁 프로젝트 산출물
+
+🔗 트러블 슈팅 - [Trouble Shooting](https://velog.io/@rmsckd1640/AWS-EC2-Read-only-file-system-EBS-%EB%B3%BC%EB%A5%A8-%EB%B6%84%EB%A6%AC-swap-file)  
+📋 [roccia 대회 앱 사용법.pdf](https://github.com/user-attachments/files/23626581/roccia.pdf)
 
 
-![sa](https://github.com/user-attachments/assets/c05ce0f4-9396-4cb7-8bb5-98d9eb57dfac)
+### System Architecture
 
+<img width="621" height="591" alt="스크린샷 2025-11-18 오전 11 46 09" src="https://github.com/user-attachments/assets/3da99f26-c88a-445a-97b9-4e46097ebf11" />
 
----
+### ERD
 
-## 🗃 ERD
-
-<img width="342" alt="roccia_cup ERD" src="https://github.com/user-attachments/assets/be79564a-26f8-451e-b0eb-774050e2551d" />
+<img width="539" height="207" alt="스크린샷 2025-11-19 오후 8 24 13" src="https://github.com/user-attachments/assets/faeee439-da51-47ac-b142-b7c5c315836d" />
 
 ---
 
