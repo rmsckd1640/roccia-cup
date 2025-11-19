@@ -1,5 +1,5 @@
 -- 사용자 테이블
-CREATE TABLE `User` (
+CREATE TABLE `user` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `team_name` VARCHAR(50) NOT NULL,
   `user_name` VARCHAR(50) NOT NULL,
@@ -9,13 +9,15 @@ CREATE TABLE `User` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 점수 기록 테이블
-CREATE TABLE `ScoreRecord` (
+CREATE TABLE `score_record` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT NOT NULL,
-  `sector` INT NOT NULL,
+  `sector` VARCHAR(10) NOT NULL,
   `score` INT NOT NULL,
   `submitted_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY `unique_user_sector` (`user_id`, `sector`),
-  FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `fk_score_record_user`
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
