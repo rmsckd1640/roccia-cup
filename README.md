@@ -60,7 +60,7 @@ Roccia Cup은 클라이밍 동아리 대회에서의 점수 집계와 랭킹 계
 
 ### ERD
 
-<img width="539" height="207" alt="스크린샷 2025-11-19 오후 8 24 13" src="https://github.com/user-attachments/assets/faeee439-da51-47ac-b142-b7c5c315836d" />
+<img width="514" height="222" alt="스크린샷 2025-12-02 오후 3 59 21" src="https://github.com/user-attachments/assets/7f6f551c-ac00-4877-804d-79b969e7a58e" />
 
 ---
 
