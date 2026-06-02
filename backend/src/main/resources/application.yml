@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    default: dev
+  jackson:
+    time-zone: Asia/Seoul
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
