@@ -1,8 +1,8 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.entity.ScoreRecord;
+import com.roccia.backend.entity.Score;
 import com.roccia.backend.entity.User;
-import com.roccia.backend.repository.ScoreRecordRepository;
+import com.roccia.backend.repository.ScoreRepository;
 import com.roccia.backend.repository.UserRepository;
 import com.roccia.backend.request.UserRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class RankingController {
 
     private final UserRepository userRepository;
-    private final ScoreRecordRepository scoreRecordRepository;
+    private final ScoreRepository scoreRepository;
 
     @PostMapping(produces = "application/json; charset=UTF-8")
     public ResponseEntity<List<Map<String, Object>>> getTeamRankings(@RequestBody UserRequest request) {
@@ -31,11 +31,11 @@ public class RankingController {
             String teamName = user.getTeamName();
 
             // 유저의 점수 중에서 지구력(99) 제외
-            List<ScoreRecord> scores = scoreRecordRepository.findByUser(user).stream()
+            List<Score> scores = scoreRepository.findByUser(user).stream()
                     .filter(score -> score.getSector() != 99)
                     .collect(Collectors.toList());
 
-            int sum = scores.stream().mapToInt(ScoreRecord::getScore).sum();
+            int sum = scores.stream().mapToInt(Score::getScore).sum();
 
             // 점수는 유효한 점수만 합산
             teamScoreSum.merge(teamName, sum, Integer::sum);

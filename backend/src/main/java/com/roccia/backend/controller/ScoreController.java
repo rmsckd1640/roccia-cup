@@ -1,8 +1,8 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.entity.ScoreRecord;
+import com.roccia.backend.entity.Score;
 import com.roccia.backend.entity.User;
-import com.roccia.backend.request.ScoreRecordRequest;
+import com.roccia.backend.request.ScoreRequest;
 import com.roccia.backend.service.ScoreService;
 import com.roccia.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,17 +26,17 @@ public class ScoreController {
 
     // 점수 제출
     @PostMapping("/submit")
-    public ResponseEntity<?> submitScore(@RequestBody ScoreRecordRequest request) {
+    public ResponseEntity<?> submitScore(@RequestBody ScoreRequest request) {
         User user = userService.find(request.getTeamName(), request.getUserName())
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
-        ScoreRecord saved = scoreService.submitScore(user, request.getSector(), request.getScore());
+        Score saved = scoreService.submitScore(user, request.getSector(), request.getScore());
         return ResponseEntity.ok(saved);
     }
 
     // 사용자 점수 조회
     @GetMapping("/user")
-    public ResponseEntity<List<ScoreRecord>> getUserScores(@RequestParam String teamName,
+    public ResponseEntity<List<Score>> getUserScores(@RequestParam String teamName,
                                                            @RequestParam String userName) {
         User user = userRepository.findByTeamNameAndUserName(teamName, userName)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));

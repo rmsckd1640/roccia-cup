@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScoreRecordRequest {
+public class ScoreRequest {
     private String teamName;
     private String userName;
     private int sector;
