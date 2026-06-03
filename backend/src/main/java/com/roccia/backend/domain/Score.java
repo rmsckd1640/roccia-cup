@@ -1,4 +1,4 @@
-package com.roccia.backend.entity;
+package com.roccia.backend.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,9 +30,4 @@ public class Score {
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.submittedAt = LocalDateTime.now();
-    }
 }

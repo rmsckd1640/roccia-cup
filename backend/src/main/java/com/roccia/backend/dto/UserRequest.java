@@ -1,4 +1,4 @@
-package com.roccia.backend.request;
+package com.roccia.backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScoreRequest {
+public class UserRequest {
     private String teamName;
     private String userName;
-    private int sector;
-    private int score;
+    private String newTeamName;
+    private String newUserName;
+    private String role; // 옵션
+    private String newRole; //역할 수정 시 사용
 }

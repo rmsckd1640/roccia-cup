@@ -1,7 +1,7 @@
 package com.roccia.backend.service;
 
-import com.roccia.backend.entity.Score;
-import com.roccia.backend.entity.User;
+import com.roccia.backend.domain.Score;
+import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.ScoreRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

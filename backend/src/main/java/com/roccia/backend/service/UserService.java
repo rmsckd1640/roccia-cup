@@ -1,8 +1,9 @@
 package com.roccia.backend.service;
 
-import com.roccia.backend.entity.User;
+import com.roccia.backend.domain.Role;
+import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.UserRepository;
-import com.roccia.backend.request.UserRequest;
+import com.roccia.backend.dto.UserRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,12 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User loginOrCreateUser(String teamName, String userName, String role) {
+        Role userRole = (role != null) ? Role.valueOf(role.toUpperCase()) : Role.MEMBER;
         return userRepository.findByTeamNameAndUserName(teamName, userName)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .teamName(teamName)
                         .userName(userName)
-                        .role(role)
+                        .role(userRole)
                         .build()));
     }
 
@@ -46,7 +48,7 @@ public class UserService {
         currentUser.setUserName(request.getNewUserName());
 
         if (request.getNewRole() != null && !request.getNewRole().isBlank()) {
-            currentUser.setRole(request.getNewRole());
+            currentUser.setRole(Role.valueOf(request.getNewRole().toUpperCase()));
         }
 
         return userRepository.save(currentUser);
