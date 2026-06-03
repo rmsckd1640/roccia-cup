@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
         name = "scores",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "sector"})}
 )
-@Getter @Setter
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class Score {
