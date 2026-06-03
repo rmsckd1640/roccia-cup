@@ -1,10 +1,10 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.entity.Score;
-import com.roccia.backend.entity.User;
+import com.roccia.backend.domain.Score;
+import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.ScoreRepository;
 import com.roccia.backend.repository.UserRepository;
-import com.roccia.backend.request.UserRequest;
+import com.roccia.backend.dto.UserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

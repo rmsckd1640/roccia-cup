@@ -1,4 +1,4 @@
-package com.roccia.backend.entity;
+package com.roccia.backend.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,9 +23,9 @@ public class User {
     @Column(name = "user_name")
     private String userName;
 
-    private String role; // LEADER 또는 MEMBER
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
-
 }

@@ -1,7 +1,7 @@
 package com.roccia.backend.repository;
 
-import com.roccia.backend.entity.Score;
-import com.roccia.backend.entity.User;
+import com.roccia.backend.domain.Score;
+import com.roccia.backend.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

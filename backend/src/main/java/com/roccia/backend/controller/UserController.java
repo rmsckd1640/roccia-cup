@@ -1,7 +1,7 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.entity.User;
-import com.roccia.backend.request.UserRequest;
+import com.roccia.backend.domain.User;
+import com.roccia.backend.dto.UserRequest;
 import com.roccia.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
