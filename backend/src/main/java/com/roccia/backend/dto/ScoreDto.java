@@ -9,11 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
+public class ScoreDto {
     private String teamName;
     private String userName;
-    private String newTeamName;
-    private String newUserName;
-    private String role; // 옵션
-    private String newRole; //역할 수정 시 사용
+    private int sector;
+    private int score;
 }

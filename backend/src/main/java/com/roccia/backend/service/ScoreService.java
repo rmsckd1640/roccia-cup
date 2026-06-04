@@ -3,7 +3,7 @@ package com.roccia.backend.service;
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.ScoreRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +12,19 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ScoreService {
 
     private final ScoreRepository scoreRepository;
 
+    @Transactional
     public Score submitScore(User user, int sector, int score) {
-        if (sector == 99 && scoreRepository.existsByUser_TeamNameAndSector(user.getTeamName(), 99)) {
-            throw new IllegalArgumentException("이미 이 팀은 지구력 점수를 입력했습니다.");
-        }
+        Optional<Score> existingScore = scoreRepository.findByUserAndSector(user, sector);
 
-        if (scoreRepository.findByUserAndSector(user, sector).isPresent()) {
-            throw new IllegalArgumentException("이미 이 섹터에 점수를 입력했습니다.");
+        if (existingScore.isPresent()) {
+            Score scoreEntity = existingScore.get();
+            scoreEntity.changeScore(score);
+            return scoreEntity; // @Transactional에 의해 자동 업데이트(Dirty Checking)
         }
 
         return scoreRepository.save(Score.builder()
