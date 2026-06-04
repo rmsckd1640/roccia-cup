@@ -15,7 +15,4 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     void deleteByUser(User user);
 
-    boolean existsByUser_TeamNameAndSector(String teamName, int sector);
-
-
 }
