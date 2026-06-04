@@ -3,7 +3,7 @@ package com.roccia.backend.service;
 import com.roccia.backend.domain.Role;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.UserRepository;
-import com.roccia.backend.dto.UserRequest;
+import com.roccia.backend.dto.UserDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(UserRequest request) {
+    public User updateUser(UserDto request) {
         User currentUser = userRepository.findByTeamNameAndUserName(
                         request.getTeamName(), request.getUserName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -44,12 +44,11 @@ public class UserService {
         }
 
         // 수정 진행
-        currentUser.setTeamName(request.getNewTeamName());
-        currentUser.setUserName(request.getNewUserName());
+        Role newRole = (request.getNewRole() != null && !request.getNewRole().isBlank()) 
+                ? Role.valueOf(request.getNewRole().toUpperCase()) 
+                : currentUser.getRole();
 
-        if (request.getNewRole() != null && !request.getNewRole().isBlank()) {
-            currentUser.setRole(Role.valueOf(request.getNewRole().toUpperCase()));
-        }
+        currentUser.updateProfile(request.getNewTeamName(), request.getNewUserName(), newRole);
 
         return userRepository.save(currentUser);
     }

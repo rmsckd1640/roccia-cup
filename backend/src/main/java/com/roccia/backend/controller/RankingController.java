@@ -4,7 +4,7 @@ import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.ScoreRepository;
 import com.roccia.backend.repository.UserRepository;
-import com.roccia.backend.dto.UserRequest;
+import com.roccia.backend.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +21,7 @@ public class RankingController {
     private final ScoreRepository scoreRepository;
 
     @PostMapping(produces = "application/json; charset=UTF-8")
-    public ResponseEntity<List<Map<String, Object>>> getTeamRankings(@RequestBody UserRequest request) {
+    public ResponseEntity<List<Map<String, Object>>> getTeamRankings(@RequestBody UserDto request) {
         List<User> users = userRepository.findAll();
 
         Map<String, Integer> teamScoreSum = new HashMap<>();
