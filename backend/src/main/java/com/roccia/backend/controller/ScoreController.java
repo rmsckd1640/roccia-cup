@@ -5,6 +5,7 @@ import com.roccia.backend.domain.User;
 import com.roccia.backend.dto.ScoreDto;
 import com.roccia.backend.service.ScoreService;
 import com.roccia.backend.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class ScoreController {
 
     // 점수 제출
     @PostMapping("/submit")
-    public ResponseEntity<?> submitScore(@RequestBody ScoreDto request) {
+    public ResponseEntity<?> submitScore(@Valid @RequestBody ScoreDto request) {
         User user = userService.find(request.getTeamName(), request.getUserName())
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 
