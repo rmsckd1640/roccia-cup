@@ -2,7 +2,7 @@ package com.roccia.backend.controller;
 
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
-import com.roccia.backend.dto.ScoreDto;
+import com.roccia.backend.dto.ScoreSubmitRequest;
 import com.roccia.backend.service.ScoreService;
 import com.roccia.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -27,7 +27,7 @@ public class ScoreController {
 
     // 점수 제출
     @PostMapping("/submit")
-    public ResponseEntity<?> submitScore(@Valid @RequestBody ScoreDto request) {
+    public ResponseEntity<?> submitScore(@Valid @RequestBody ScoreSubmitRequest request) {
         User user = userService.find(request.getTeamName(), request.getUserName())
                 .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
 

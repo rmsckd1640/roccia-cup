@@ -3,7 +3,7 @@ package com.roccia.backend.service;
 import com.roccia.backend.domain.Role;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.repository.UserRepository;
-import com.roccia.backend.dto.UserDto;
+import com.roccia.backend.dto.UserUpdateRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(UserDto request) {
+    public User updateUser(UserUpdateRequest request) {
         User currentUser = userRepository.findByTeamNameAndUserName(
                         request.getTeamName(), request.getUserName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
