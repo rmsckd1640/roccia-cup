@@ -18,19 +18,19 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
 
     @Transactional
-    public Score submitScore(User user, int sector, int score) {
+    public Score submitScore(User user, int sector, int point) {
         Optional<Score> existingScore = scoreRepository.findByUserAndSector(user, sector);
 
         if (existingScore.isPresent()) {
             Score scoreEntity = existingScore.get();
-            scoreEntity.changeScore(score);
+            scoreEntity.changePoint(point);
             return scoreEntity; // @Transactional에 의해 자동 업데이트(Dirty Checking)
         }
 
         return scoreRepository.save(Score.builder()
                 .user(user)
                 .sector(sector)
-                .score(score)
+                .point(point)
                 .build());
     }
 

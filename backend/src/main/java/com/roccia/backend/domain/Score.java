@@ -24,17 +24,17 @@ public class Score {
 
     private int sector;
 
-    private int score;
+    private int point;
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
     @Builder
-    public Score(User user, int sector, int score) {
-        validate(user, sector, score);
+    public Score(User user, int sector, int point) {
+        validate(user, sector, point);
         this.user = user;
         this.sector = sector;
-        this.score = score;
+        this.point = point;
     }
 
     @PrePersist
@@ -42,22 +42,22 @@ public class Score {
         this.submittedAt = LocalDateTime.now();
     }
 
-    public void changeScore(int newScore) {
-        if (newScore < 0) {
+    public void changePoint(int newPoint) {
+        if (newPoint < 0) {
             throw new IllegalArgumentException("점수는 0 이상이어야 합니다.");
         }
-        this.score = newScore;
+        this.point = newPoint;
         this.submittedAt = LocalDateTime.now();
     }
 
-    private void validate(User user, int sector, int score) {
+    private void validate(User user, int sector, int point) {
         if (user == null) {
             throw new IllegalArgumentException("사용자 정보는 필수입니다.");
         }
         if (sector < 0) {
             throw new IllegalArgumentException("섹터 번호는 0 이상이어야 합니다.");
         }
-        if (score < 0) {
+        if (point < 0) {
             throw new IllegalArgumentException("점수는 0 이상이어야 합니다.");
         }
     }

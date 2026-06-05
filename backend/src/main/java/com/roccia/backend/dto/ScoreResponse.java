@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 public class ScoreResponse {
     private Long id;
     private int sector;
-    private int score;
+    private int point;
     private LocalDateTime submittedAt;
 
     public static ScoreResponse from(Score score) {
         return ScoreResponse.builder()
                 .id(score.getId())
                 .sector(score.getSector())
-                .score(score.getScore())
+                .point(score.getPoint())
                 .submittedAt(score.getSubmittedAt())
                 .build();
     }
