@@ -2,6 +2,7 @@ package com.roccia.backend.controller;
 
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
+import com.roccia.backend.dto.ScoreResponse;
 import com.roccia.backend.dto.ScoreSubmitRequest;
 import com.roccia.backend.service.ScoreService;
 import com.roccia.backend.service.UserService;
@@ -10,11 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-import com.roccia.backend.repository.UserRepository;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/scores")
@@ -23,36 +21,36 @@ public class ScoreController {
 
     private final ScoreService scoreService;
     private final UserService userService;
-    private final UserRepository userRepository;
 
     // 점수 제출
-    @PostMapping("/submit")
-    public ResponseEntity<?> submitScore(@Valid @RequestBody ScoreSubmitRequest request) {
-        User user = userService.find(request.getTeamName(), request.getUserName())
-                .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+    @PostMapping
+    public ResponseEntity<ScoreResponse> submitScore(@Valid @RequestBody ScoreSubmitRequest request) {
+        User user = userService.getValidatedUser(request.getTeamName(), request.getUserName());
 
         Score saved = scoreService.submitScore(user, request.getSector(), request.getScore());
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(ScoreResponse.from(saved));
     }
 
     // 사용자 점수 조회
     @GetMapping("/user")
-    public ResponseEntity<List<Score>> getUserScores(@RequestParam String teamName,
+    public ResponseEntity<List<ScoreResponse>> getUserScores(@RequestParam String teamName,
                                                            @RequestParam String userName) {
-        User user = userRepository.findByTeamNameAndUserName(teamName, userName)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자가 존재하지 않습니다."));
+        User user = userService.getValidatedUser(teamName, userName);
 
-        return ResponseEntity.ok(scoreService.getScores(user));
+        List<ScoreResponse> responses = scoreService.getScores(user).stream()
+                .map(ScoreResponse::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
     }
 
 
     // 특정 섹터 점수 삭제
-    @DeleteMapping("/delete/{teamName}/{userName}/{sector}")
+    @DeleteMapping("/{teamName}/{userName}/{sector}")
     public ResponseEntity<Void> deleteScore(@PathVariable String teamName,
                                             @PathVariable String userName,
                                             @PathVariable int sector) {
-        User user = userService.find(teamName, userName)
-                .orElseThrow(() -> new RuntimeException("사용자가 존재하지 않습니다."));
+        User user = userService.getValidatedUser(teamName, userName);
 
         scoreService.deleteScore(user, sector);
         return ResponseEntity.noContent().build();
