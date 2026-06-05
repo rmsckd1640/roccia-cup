@@ -2,7 +2,7 @@ package com.roccia.backend.service;
 
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
-import com.roccia.backend.dto.RankingDto;
+import com.roccia.backend.dto.RankingResponse;
 import com.roccia.backend.repository.ScoreRepository;
 import com.roccia.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class RankingService {
     private final UserRepository userRepository;
     private final ScoreRepository scoreRepository;
 
-    public List<RankingDto> getTeamRankings() {
+    public List<RankingResponse> getTeamRankings() {
         List<User> users = userRepository.findAll();
 
         Map<String, Integer> teamScoreSum = new HashMap<>();
@@ -44,7 +44,7 @@ public class RankingService {
                     int count = teamMemberCount.getOrDefault(team, 1);
                     double avg = (double) sum / count;
 
-                    return new RankingDto(team, avg);
+                    return new RankingResponse(team, avg);
                 })
                 .sorted((a, b) -> Double.compare(b.getAverageScore(), a.getAverageScore()))
                 .collect(Collectors.toList());

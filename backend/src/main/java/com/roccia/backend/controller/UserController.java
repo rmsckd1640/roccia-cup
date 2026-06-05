@@ -1,7 +1,8 @@
 package com.roccia.backend.controller;
 
 import com.roccia.backend.domain.User;
-import com.roccia.backend.dto.UserDto;
+import com.roccia.backend.dto.UserLoginRequest;
+import com.roccia.backend.dto.UserUpdateRequest;
 import com.roccia.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,18 +18,14 @@ public class UserController {
 
     // 로그인 (있으면 반환, 없으면 생성)
     @PostMapping("/login")
-    public ResponseEntity<User> login(@Valid @RequestBody UserDto request) {
+    public ResponseEntity<User> login(@Valid @RequestBody UserLoginRequest request) {
         User user = userService.loginOrCreateUser(request.getTeamName(), request.getUserName(), request.getRole());
         return ResponseEntity.ok(user);
     }
 
     @PatchMapping("/update")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody UserDto request) {
-        User updatedUser = userService.updateUser(request);  // 여기에 try-catch 있으면 안됨!
+    public ResponseEntity<User> updateUser(@Valid @RequestBody UserUpdateRequest request) {
+        User updatedUser = userService.updateUser(request);
         return ResponseEntity.ok(updatedUser);
     }
-
-
-
-
 }

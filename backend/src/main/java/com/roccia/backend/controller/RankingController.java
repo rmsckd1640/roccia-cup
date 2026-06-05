@@ -1,6 +1,6 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.dto.RankingDto;
+import com.roccia.backend.dto.RankingResponse;
 import com.roccia.backend.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class RankingController {
     private final RankingService rankingService;
 
     @GetMapping
-    public ResponseEntity<List<RankingDto>> getTeamRankings() {
+    public ResponseEntity<List<RankingResponse>> getTeamRankings() {
         return ResponseEntity.ok(rankingService.getTeamRankings());
     }
 }

@@ -10,15 +10,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    @NotBlank(message = "팀 이름은 필수입니다.")
+public class UserUpdateRequest {
+    @NotBlank(message = "현재 팀 이름은 필수입니다.")
     private String teamName;
 
-    @NotBlank(message = "사용자 이름은 필수입니다.")
+    @NotBlank(message = "현재 사용자 이름은 필수입니다.")
     private String userName;
 
+    @NotBlank(message = "새로운 팀 이름은 필수입니다.")
     private String newTeamName;
+
+    @NotBlank(message = "새로운 사용자 이름은 필수입니다.")
     private String newUserName;
-    private String role; // 옵션
-    private String newRole; //역할 수정 시 사용
+
+    private String newRole; // 선택 사항
 }
