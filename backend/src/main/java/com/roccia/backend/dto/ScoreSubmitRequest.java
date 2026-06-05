@@ -22,5 +22,5 @@ public class ScoreSubmitRequest {
     private int sector;
 
     @Min(value = 0, message = "점수는 0 이상이어야 합니다.")
-    private int score;
+    private int point;
 }

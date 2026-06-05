@@ -1,52 +1,34 @@
 package com.roccia.backend.service;
 
-import com.roccia.backend.domain.Score;
-import com.roccia.backend.domain.User;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.roccia.backend.dto.RankingResponse;
-import com.roccia.backend.repository.ScoreRepository;
-import com.roccia.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+
+import static com.roccia.backend.domain.QScore.score;
+import static com.roccia.backend.domain.QUser.user;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RankingService {
 
-    private final UserRepository userRepository;
-    private final ScoreRepository scoreRepository;
+    private final JPAQueryFactory queryFactory;
 
     public List<RankingResponse> getTeamRankings() {
-        List<User> users = userRepository.findAll();
-
-        Map<String, Integer> teamScoreSum = new HashMap<>();
-        Map<String, Integer> teamMemberCount = new HashMap<>();
-
-        for (User user : users) {
-            String teamName = user.getTeamName();
-
-            List<Score> scores = scoreRepository.findByUser(user);
-            int sum = scores.stream().mapToInt(Score::getScore).sum();
-
-            teamScoreSum.merge(teamName, sum, Integer::sum);
-            teamMemberCount.merge(teamName, 1, Integer::sum);
-        }
-
-        Set<String> allTeams = teamMemberCount.keySet();
-
-        return allTeams.stream()
-                .map(team -> {
-                    int sum = teamScoreSum.getOrDefault(team, 0);
-                    int count = teamMemberCount.getOrDefault(team, 1);
-                    double avg = (double) sum / count;
-
-                    return new RankingResponse(team, avg);
-                })
-                .sorted((a, b) -> Double.compare(b.getAverageScore(), a.getAverageScore()))
-                .collect(Collectors.toList());
+        return queryFactory
+                .select(Projections.constructor(RankingResponse.class,
+                        user.teamName,
+                        score.point.avg()
+                ))
+                .from(score)
+                .join(score.user, user)
+                .groupBy(user.teamName)
+                .orderBy(score.point.avg().desc())
+                .fetch();
     }
 }

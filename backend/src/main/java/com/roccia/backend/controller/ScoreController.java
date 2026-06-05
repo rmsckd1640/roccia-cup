@@ -27,7 +27,7 @@ public class ScoreController {
     public ResponseEntity<ScoreResponse> submitScore(@Valid @RequestBody ScoreSubmitRequest request) {
         User user = userService.getValidatedUser(request.getTeamName(), request.getUserName());
 
-        Score saved = scoreService.submitScore(user, request.getSector(), request.getScore());
+        Score saved = scoreService.submitScore(user, request.getSector(), request.getPoint());
         return ResponseEntity.ok(ScoreResponse.from(saved));
     }
 
