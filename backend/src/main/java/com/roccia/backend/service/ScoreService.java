@@ -2,6 +2,8 @@ package com.roccia.backend.service;
 
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
+import com.roccia.backend.dto.ScoreResponse;
+import com.roccia.backend.dto.ScoreSubmitRequest;
 import com.roccia.backend.repository.ScoreRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,36 +19,41 @@ import java.util.Optional;
 public class ScoreService {
 
     private final ScoreRepository scoreRepository;
+    private final UserService userService;
 
     @Transactional
-    public Score submitScore(User user, int sector, int point) {
-        Optional<Score> existingScore = scoreRepository.findByUserAndSector(user, sector);
+    public ScoreResponse submitScore(ScoreSubmitRequest request) {
+        User user = userService.getValidatedUser(request.getTeamName(), request.getUserName());
+
+        Optional<Score> existingScore = scoreRepository.findByUserAndSector(user, request.getSector());
 
         if (existingScore.isPresent()) {
             Score scoreEntity = existingScore.get();
-            scoreEntity.changePoint(point);
-            return scoreEntity; // @Transactional에 의해 자동 업데이트(Dirty Checking)
+            scoreEntity.changePoint(request.getPoint());
+            return ScoreResponse.from(scoreEntity);
         }
 
-        return scoreRepository.save(Score.builder()
+        Score saved = scoreRepository.save(Score.builder()
                 .user(user)
-                .sector(sector)
-                .point(point)
+                .sector(request.getSector())
+                .point(request.getPoint())
                 .build());
+
+        return ScoreResponse.from(saved);
     }
 
 
-    public List<Score> getScores(User user) {
-        return scoreRepository.findByUser(user);
+    public List<ScoreResponse> getScores(String teamName, String userName) {
+        User user = userService.getValidatedUser(teamName, userName);
+        return scoreRepository.findByUser(user).stream()
+                .map(ScoreResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteScore(User user, int sector) {
+    public void deleteScore(String teamName, String userName, int sector) {
+        User user = userService.getValidatedUser(teamName, userName);
         Optional<Score> scoreOpt = scoreRepository.findByUserAndSector(user, sector);
         scoreOpt.ifPresent(scoreRepository::delete);
-    }
-
-    public void deleteAllByUser(User user) {
-        scoreRepository.deleteByUser(user);
     }
 }
