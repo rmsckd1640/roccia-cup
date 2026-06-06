@@ -7,7 +7,10 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"team_name", "user_name"})}
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
