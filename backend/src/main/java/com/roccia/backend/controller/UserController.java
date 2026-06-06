@@ -20,14 +20,11 @@ public class UserController {
     // 로그인 (있으면 반환, 없으면 생성)
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody UserLoginRequest request) {
-        User user = userService.loginOrCreateUser(request.getTeamName(), request.getUserName(), request.getRole());
-        return ResponseEntity.ok(UserResponse.from(user));
+        return ResponseEntity.ok(userService.joinOrLogin(request.getTeamName(), request.getUserName(), request.getRole()));
     }
 
-    // 정보 수정
     @PatchMapping
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserUpdateRequest request) {
-        User updatedUser = userService.updateUser(request);
-        return ResponseEntity.ok(UserResponse.from(updatedUser));
+        return ResponseEntity.ok(userService.updateUser(request));
     }
 }
