@@ -1,9 +1,13 @@
-HELP.md
-.gradle
+# Gradle
+.gradle/
 build/
+bin/
 !gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+
+# Configuration
+application.properties
+application-*.properties
+# (application.yml is usually committed, but if you have sensitive local ones, add them here)
 
 ### STS ###
 .apt_generated
@@ -13,18 +17,6 @@ build/
 .settings
 .springBeans
 .sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -32,6 +24,3 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
-
-### VS Code ###
-.vscode/

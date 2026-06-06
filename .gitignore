@@ -1,64 +1,26 @@
-backend/gradle/wrapper/gradle-wrapper.jar
-frontend/ios/Runner.xcodeproj/project.xcworkspace/
-
-
 # =====================
-# 🛠️ 개발 환경/IDE 관련
+# 🛠️ Global IDE / OS
 # =====================
 .idea/
 .vscode/
 *.iml
-*.class
+*.iws
+*.ipr
 out/
-build/
-.gradle/
-
-# Flutter 캐시 및 툴 파일
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.metadata
-
-# =====================
-# 📦 의존성/환경 파일
-# =====================
-pubspec.lock  # 앱이라면 커밋해도 되지만, 필요 시 유지
-application.properties
-*.env
-
-# =====================
-# 🧪 로그 및 임시파일
-# =====================
-*.log
 .DS_Store
 Thumbs.db
+*.log
+*.tmp
 
 # =====================
-# 🔐 민감 정보 및 보안 파일
+# 🔐 Secrets & Environmental
 # =====================
 *.pem
 *.key
+*.env
 
 # =====================
-# 🐳 도커 및 DB 백업
+# 🐳 Docker & Misc
 # =====================
 *.tar
-*.sql
-
-# =====================
-# 📂 자동 생성된 아이콘 파일 (선택적 제외)
-# iOS 빌드시 생기는 중복 이미지 제거
-# =====================
-frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-50x50@*.png
-frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-57x57@*.png
-frontend/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-72x72@*.png
-
 *.jar
-
-**/xcshareddata/IDEWorkspaceChecks.plist
-**/xcshareddata/WorkspaceSettings.xcsettings
-
-ios/Runner.xcodeproj/project.xcworkspace/
-ios/Runner.xcworkspace/xcshareddata/
