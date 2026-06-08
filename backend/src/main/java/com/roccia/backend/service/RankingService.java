@@ -1,6 +1,7 @@
 package com.roccia.backend.service;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.roccia.backend.dto.RankingResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +21,19 @@ public class RankingService {
     private final JPAQueryFactory queryFactory;
 
     public List<RankingResponse> getTeamRankings() {
+        NumberExpression<Double> teamAverage = score.point.sum().coalesce(0)
+                .castToNum(Double.class)
+                .divide(user.id.countDistinct());
+
         return queryFactory
                 .select(Projections.constructor(RankingResponse.class,
                         user.teamName,
-                        score.point.avg()
+                        teamAverage
                 ))
-                .from(score)
-                .join(score.user, user)
+                .from(user)
+                .leftJoin(score).on(score.user.eq(user))
                 .groupBy(user.teamName)
-                .orderBy(score.point.avg().desc())
+                .orderBy(teamAverage.desc())
                 .fetch();
     }
 }
