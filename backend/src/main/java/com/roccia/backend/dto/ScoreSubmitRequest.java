@@ -1,5 +1,6 @@
 package com.roccia.backend.dto;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,8 @@ public class ScoreSubmitRequest {
     @NotBlank(message = "사용자 이름은 필수입니다.")
     private String userName;
 
-    @Min(value = 0, message = "섹터 번호는 0 이상이어야 합니다.")
+    @Min(value = 1, message = "섹터 번호는 1 이상이어야 합니다.")
+    @Max(value = 6, message = "섹터 번호는 6 이하여야 합니다.")
     private int sector;
 
     @Min(value = 0, message = "점수는 0 이상이어야 합니다.")
