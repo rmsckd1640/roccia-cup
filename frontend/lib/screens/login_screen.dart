@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_screen.dart';
+import '../models/user_login_request.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -34,16 +35,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (teamName.isEmpty || userName.isEmpty) return;
 
+    final requestModel = UserLoginRequest(
+      teamName: teamName,
+      userName: userName,
+      role: _selectedRole,
+    );
+
     final baseUrl = dotenv.env['API_BASE_URL'];
     final url = Uri.parse('$baseUrl/users/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'teamName': teamName,
-        'userName': userName,
-        'role': _selectedRole,
-      }),
+      body: jsonEncode(requestModel.toJson()),
     );
 
     if (response.statusCode == 200) {
