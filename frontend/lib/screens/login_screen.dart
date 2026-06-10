@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_screen.dart';
 
 import 'package:http/http.dart' as http;
@@ -33,7 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (teamName.isEmpty || userName.isEmpty) return;
 
-    final url = Uri.parse('https://roccia-cup.site/api/users/login');
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/users/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
