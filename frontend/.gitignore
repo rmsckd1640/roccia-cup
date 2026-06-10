@@ -6,6 +6,7 @@
 .pub-cache/
 .pub/
 build/
+.env
 
 # Obfuscation & Symbols
 app.*.symbols

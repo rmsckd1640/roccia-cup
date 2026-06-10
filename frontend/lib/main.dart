@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'package:http/http.dart' as http;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -18,7 +21,8 @@ class MyApp extends StatelessWidget {
 
     if (team != null && name != null) {
       // 서버에 유저 존재 여부 확인
-      final url = Uri.parse('https://roccia-cup.site/api/scores/user?teamName=$team&userName=$name');
+      final baseUrl = dotenv.env['API_BASE_URL'];
+      final url = Uri.parse('$baseUrl/scores/user?teamName=$team&userName=$name');
       final response = await http.get(url);
       if (response.statusCode == 200) {
         return const HomeScreen();
