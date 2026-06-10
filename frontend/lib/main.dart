@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'package:http/http.dart' as http;
+import 'services/api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,14 +20,15 @@ class MyApp extends StatelessWidget {
     final name = prefs.getString('userName');
 
     if (team != null && name != null) {
-      // 서버에 유저 존재 여부 확인
-      final baseUrl = dotenv.env['API_BASE_URL'];
-      final url = Uri.parse('$baseUrl/scores/user?teamName=$team&userName=$name');
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
+      try {
+        await ApiService.getUserScores(team, name);
         return const HomeScreen();
-      } else {
-        await prefs.clear();
+      } on ApiException catch (e) {
+        if (e.statusCode == 404) {
+          await prefs.clear();
+        }
+        return const LoginScreen();
+      } catch (_) {
         return const LoginScreen();
       }
     } else {

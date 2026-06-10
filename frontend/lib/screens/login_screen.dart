@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'home_screen.dart';
 import '../models/user_login_request.dart';
-
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/api_service.dart';
+import '../utils/ui_helpers.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _nameController = TextEditingController();
 
   String _selectedRole = 'MEMBER'; // 기본값: 팀원
-  String? _errorText; // 에러 메시지 상태
   String? _teamErrorText;
   String? _nameErrorText;
 
@@ -27,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() async {
     final teamName = _teamController.text.trim();
     final userName = _nameController.text.trim();
+    bool loadingShown = false;
 
     setState(() {
       _teamErrorText = teamName.isEmpty ? '팀명을 입력해주세요' : null;
@@ -41,34 +39,41 @@ class _LoginScreenState extends State<LoginScreen> {
       role: _selectedRole,
     );
 
-    final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/users/login');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestModel.toJson()),
-    );
+    UIHelpers.showLoading(context);
+    loadingShown = true;
 
-    if (response.statusCode == 200) {
+    try {
+      await ApiService.login(requestModel);
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('teamName', teamName);
       await prefs.setString('userName', userName);
       await prefs.setString('role', _selectedRole);
 
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const HomeScreen(),
-          transitionsBuilder: (_, animation, __, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 300),
-        ),
-      );
-    } else {
-      setState(() {
-        _errorText = '로그인 실패. 서버를 확인해주세요.';
-      });
+      if (mounted) {
+        if (loadingShown) {
+          UIHelpers.hideLoading(context);
+          loadingShown = false;
+        }
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, __, ___) => const HomeScreen(),
+            transitionsBuilder: (_, animation, __, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 300),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        UIHelpers.showErrorSnackbar(context, e.toString());
+      }
+    } finally {
+      if (mounted && loadingShown) {
+        UIHelpers.hideLoading(context);
+      }
     }
   }
 
@@ -76,11 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Login',
-
-        ),
-        backgroundColor: Color(0xCB9850F3),
+        title: const Text('Login'),
+        backgroundColor: const Color(0xCB9850F3),
         elevation: 4,
       ),
       body: Padding(
@@ -103,9 +105,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 errorText: _nameErrorText,
               ),
             ),
-
-
-
             Row(
               children: [
                 Expanded(
