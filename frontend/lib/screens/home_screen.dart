@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../models/score_response.dart';
 import '../models/score_submit_request.dart';
 import '../models/user_update_request.dart';
+import '../services/api_service.dart';
+import '../utils/ui_helpers.dart';
 import 'ranking_screen.dart';
 
 
@@ -19,8 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _scoreController = TextEditingController();
   final TextEditingController _enduranceController = TextEditingController();
-
-
 
   List<ScoreResponse> scoreList = [];
   String? _role;
@@ -48,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _role = prefs.getString('role') ?? 'MEMBER';
       _teamName = prefs.getString('teamName');
@@ -63,15 +61,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/scores/user?teamName=$teamName&userName=$userName');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+    try {
+      final scores = await ApiService.getUserScores(teamName, userName);
+      if (!mounted) return;
       setState(() {
-        scoreList = data.map((item) => ScoreResponse.fromJson(item)).toList();
+        scoreList = scores;
       });
+    } catch (e) {
+      if (mounted) {
+        UIHelpers.showErrorSnackbar(context, e.toString());
+      }
     }
   }
 
@@ -113,21 +112,23 @@ class _HomeScreenState extends State<HomeScreen> {
       point: parsedScore!,
     );
 
-    final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/scores');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestModel.toJson()),
-    );
+    if (!mounted) return;
+    UIHelpers.showLoading(context);
 
-    if (response.statusCode == 200) {
+    try {
+      await ApiService.submitScore(requestModel);
       await _fetchUserScores();
+      if (!mounted) return;
       _scoreController.clear();
       setState(() {
         _selectedSector = null;
         _alreadySubmitted = false;
       });
+      if (mounted) UIHelpers.showSuccessSnackbar(context, '점수가 제출되었습니다.');
+    } catch (e) {
+      if (mounted) UIHelpers.showErrorSnackbar(context, e.toString());
+    } finally {
+      if (mounted) UIHelpers.hideLoading(context);
     }
   }
 
@@ -165,28 +166,25 @@ class _HomeScreenState extends State<HomeScreen> {
       point: parsedEndurance!,
     );
 
-    final baseUrl = dotenv.env['API_BASE_URL'];
-    final submitUrl = Uri.parse('$baseUrl/scores');
-    final response = await http.post(
-      submitUrl,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(requestModel.toJson()),
-    );
+    if (!mounted) return;
+    UIHelpers.showLoading(context);
 
-    if (response.statusCode == 200) {
+    try {
+      await ApiService.submitScore(requestModel);
       await _fetchUserScores();
+      if (!mounted) return;
       _enduranceController.clear();
       setState(() {
         _enduranceErrorText = null;
       });
-    } else {
-      final responseBody = response.body.isNotEmpty ? jsonDecode(utf8.decode(response.bodyBytes)) : null;
-      final errorMessage = responseBody is Map && responseBody.containsKey('message')
-          ? responseBody['message']
-          : '이미 팀에서 지구력 점수를 제출했습니다.';
+      if (mounted) UIHelpers.showSuccessSnackbar(context, '지구력 점수가 제출되었습니다.');
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _enduranceErrorText = errorMessage;
+        _enduranceErrorText = e.toString();
       });
+    } finally {
+      if (mounted) UIHelpers.hideLoading(context);
     }
   }
 
@@ -200,14 +198,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/scores/$teamName/$userName/$sector');
-    final response = await http.delete(url);
+    if (!mounted) return;
+    UIHelpers.showLoading(context);
 
-    if (response.statusCode == 204) {
+    try {
+      await ApiService.deleteScore(teamName, userName, sector);
+      if (!mounted) return;
       setState(() {
         scoreList.removeAt(index);
       });
+      if (mounted) UIHelpers.showSuccessSnackbar(context, '점수가 삭제되었습니다.');
+    } catch (e) {
+      if (mounted) UIHelpers.showErrorSnackbar(context, e.toString());
+    } finally {
+      if (mounted) UIHelpers.hideLoading(context);
     }
   }
 
@@ -286,15 +290,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       newRole: selectedRole,
                     );
 
-                    final baseUrl = dotenv.env['API_BASE_URL'];
-                    final url = Uri.parse('$baseUrl/users');
-                    final response = await http.patch(
-                      url,
-                      headers: {'Content-Type': 'application/json'},
-                      body: jsonEncode(requestModel.toJson()),
-                    );
+                    UIHelpers.showLoading(context);
 
-                    if (response.statusCode == 200) {
+                    try {
+                      await ApiService.updateUser(requestModel);
+
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setString('teamName', newTeam);
                       await prefs.setString('userName', newName);
@@ -302,35 +302,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       if (context.mounted) Navigator.of(context).pop();
 
-                      setState(() {
+                      if (!mounted) return;
+                      setState(() { // 상위 위젯의 상태 업데이트
                         _teamName = newTeam;
                         _userName = newName;
                         _role = selectedRole;
                       });
 
                       _fetchUserScores();
-                    }
-                    else if (response.statusCode == 400) {
-                      // 기존 팀명/이름과 같다면, 역할만 수정하는 상황 → 저장 처리
+                      if (context.mounted) UIHelpers.showSuccessSnackbar(context, '정보가 수정되었습니다.');
+                    } catch (e) {
+                      // 역할만 수정하는 경우 등 특수 케이스 처리 방식 단순화
                       if (newTeam == _teamName && newName == _userName) {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('role', selectedRole);
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('role', selectedRole);
 
-                        if (context.mounted) Navigator.of(context).pop();
+                          if (context.mounted) Navigator.of(context).pop();
 
-                        setState(() {
-                          _role = selectedRole;
-                        });
+                          if (!mounted) return;
+                          setState(() {
+                            _role = selectedRole;
+                          });
+                          if (context.mounted) UIHelpers.showSuccessSnackbar(context, '역할이 수정되었습니다.');
                       } else {
-                        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-                        final message = decoded['message'] ?? '중복된 정보 입니다!';
-
-                        if (context.mounted) {
+                         if (context.mounted) {
                           showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
-                              title: const Text('중복된 정보'),
-                              content: Text(message),
+                              title: const Text('수정 실패'),
+                              content: Text(e.toString()),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(),
@@ -341,10 +341,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         }
                       }
-
+                    } finally {
+                       if (context.mounted) UIHelpers.hideLoading(context);
                     }
-
-
                   },
                   child: const Text('저장', style: TextStyle(color: Colors.red)),
                 ),
@@ -368,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          backgroundColor: Color(0xCB9850F3),
+          backgroundColor: const Color(0xCB9850F3),
           elevation: 4,
         ),
 
