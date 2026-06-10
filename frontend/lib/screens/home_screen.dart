@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/score_response.dart';
 import '../models/score_submit_request.dart';
 import '../models/user_update_request.dart';
 import '../services/api_service.dart';
+import '../services/session_service.dart';
 import '../utils/ui_helpers.dart';
 import 'ranking_screen.dart';
 
@@ -44,20 +44,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    final session = await SessionService.load();
     if (!mounted) return;
     setState(() {
-      _role = prefs.getString('role') ?? 'MEMBER';
-      _teamName = prefs.getString('teamName');
-      _userName = prefs.getString('userName');
+      _role = session?.role ?? 'MEMBER';
+      _teamName = session?.teamName;
+      _userName = session?.userName;
     });
   }
 
 
   Future<void> _fetchUserScores() async {
-    final prefs = await SharedPreferences.getInstance();
-    final teamName = prefs.getString('teamName');
-    final userName = prefs.getString('userName');
+    final session = await SessionService.load();
+    final teamName = session?.teamName;
+    final userName = session?.userName;
 
     if (teamName == null || userName == null) return;
 
@@ -99,9 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final hasError = _selectedSector == null || _scoreErrorText != null || _alreadySubmitted;
     if (hasError) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    final teamName = prefs.getString('teamName');
-    final userName = prefs.getString('userName');
+    final session = await SessionService.load();
+    final teamName = session?.teamName;
+    final userName = session?.userName;
 
     if (teamName == null || userName == null) return;
 
@@ -137,9 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final enduranceText = _enduranceController.text.trim();
     final parsedEndurance = int.tryParse(enduranceText);
 
-    final prefs = await SharedPreferences.getInstance();
-    final teamName = prefs.getString('teamName');
-    final userName = prefs.getString('userName');
+    final session = await SessionService.load();
+    final teamName = session?.teamName;
+    final userName = session?.userName;
 
     if (teamName == null || userName == null) return;
 
@@ -191,9 +191,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _deleteScore(int index) async {
-    final prefs = await SharedPreferences.getInstance();
-    final teamName = prefs.getString('teamName');
-    final userName = prefs.getString('userName');
+    final session = await SessionService.load();
+    final teamName = session?.teamName;
+    final userName = session?.userName;
     final sector = scoreList[index].sector;
 
     if (teamName == null || userName == null) return;
@@ -295,10 +295,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     try {
                       await ApiService.updateUser(requestModel);
 
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.setString('teamName', newTeam);
-                      await prefs.setString('userName', newName);
-                      await prefs.setString('role', selectedRole);
+                      await SessionService.save(
+                        teamName: newTeam,
+                        userName: newName,
+                        role: selectedRole,
+                      );
 
                       if (context.mounted) Navigator.of(context).pop();
 
@@ -314,8 +315,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     } catch (e) {
                       // 역할만 수정하는 경우 등 특수 케이스 처리 방식 단순화
                       if (newTeam == _teamName && newName == _userName) {
-                          final prefs = await SharedPreferences.getInstance();
-                          await prefs.setString('role', selectedRole);
+                          final session = await SessionService.load();
+                          if (session == null) return;
+                          await SessionService.save(
+                            teamName: session.teamName,
+                            userName: session.userName,
+                            role: selectedRole,
+                          );
 
                           if (context.mounted) Navigator.of(context).pop();
 

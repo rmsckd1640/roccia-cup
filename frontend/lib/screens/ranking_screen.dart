@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import '../services/session_service.dart';
 import '../utils/ui_helpers.dart';
 
 class RankingScreen extends StatefulWidget {
@@ -57,8 +57,8 @@ class _RankingScreenState extends State<RankingScreen> {
   }
 
   Future<void> _fetchRankings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final teamName = prefs.getString('teamName') ?? '';
+    final session = await SessionService.load();
+    final teamName = session?.teamName ?? '';
     _myTeamName = teamName;
 
     try {
