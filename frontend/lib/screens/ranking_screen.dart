@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/session_service.dart';
 import '../utils/ui_helpers.dart';
+import '../utils/ranking_utils.dart';
+import '../models/ranking_display_item.dart';
+import 'ranking_screen_widgets.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key});
@@ -10,37 +13,10 @@ class RankingScreen extends StatefulWidget {
   State<RankingScreen> createState() => _RankingScreenState();
 }
 
-// ✅ 등수 기준 메달 이모지/스타일
-Color? _getMedalBackgroundColorByRank(int rank) {
-  switch (rank) {
-    case 1:
-      return const Color(0xFFFFF8DC); // 연한 금색
-    case 2:
-      return const Color(0xFFF5F5F5); // 연한 은색
-    case 3:
-      return const Color(0xFFFBE4D2); // 연한 동색
-    default:
-      return Colors.white;
-  }
-}
-
-Color? _getMedalBorderColorByRank(int rank) {
-  switch (rank) {
-    case 1:
-      return const Color(0xFFFFD700); // 금 테두리
-    case 2:
-      return const Color(0xFFC0C0C0); // 은 테두리
-    case 3:
-      return const Color(0xFFCD7F32); // 동 테두리
-    default:
-      return Colors.transparent;
-  }
-}
-
 class _RankingScreenState extends State<RankingScreen> {
   final ScrollController _scrollController = ScrollController();
-  List<Map<String, dynamic>> rankings = [];
-  Map<String, dynamic>? _myTeamData;
+  List<RankingDisplayItem> rankings = [];
+  RankingDisplayItem? _myTeamData;
   String? _myTeamName;
   bool _isLoading = true;
 
@@ -63,18 +39,19 @@ class _RankingScreenState extends State<RankingScreen> {
 
     try {
       final rankingResponses = await ApiService.getRankings();
-      
-      // RankingResponse 모델을 화면 출력용 데이터 추가(rank 등)를 위해 가공
-      final List<Map<String, dynamic>> rawList = rankingResponses.map((model) {
-        return {
-          'teamName': model.teamName,
-          'averageScore': model.averageScore,
-        };
-      }).toList();
+      final displayItems = buildRankingDisplayItems(rankingResponses);
 
       if (mounted) {
         setState(() {
-          rankings = _applyRankingWithTies(rawList);
+          rankings = displayItems;
+          _myTeamData = displayItems.firstWhere(
+            (team) => team.teamName == _myTeamName,
+            orElse: () => const RankingDisplayItem(
+              teamName: '',
+              averageScore: 0.0,
+              rank: null,
+            ),
+          );
           _isLoading = false;
         });
       }
@@ -86,31 +63,6 @@ class _RankingScreenState extends State<RankingScreen> {
         UIHelpers.showErrorSnackbar(context, e.toString());
       }
     }
-  }
-
-  List<Map<String, dynamic>> _applyRankingWithTies(List<Map<String, dynamic>> rawList) {
-    rawList.sort((a, b) =>
-        (b['averageScore'] as double).compareTo(a['averageScore'] as double));
-
-    int rank = 1;
-    double? prevScore;
-    for (var i = 0; i < rawList.length; i++) {
-      double score = rawList[i]['averageScore'];
-      if (prevScore != null && score == prevScore) {
-        rawList[i]['rank'] = rank;
-      } else {
-        rank = i + 1;
-        rawList[i]['rank'] = rank;
-        prevScore = score;
-      }
-    }
-
-    _myTeamData = rawList.firstWhere(
-          (team) => team['teamName'] == _myTeamName,
-      orElse: () => {'teamName': _myTeamName, 'averageScore': 0.0, 'rank': null},
-    );
-
-    return rawList;
   }
 
   @override
@@ -140,79 +92,25 @@ class _RankingScreenState extends State<RankingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (_myTeamData != null)
-                      _buildTeamCard(_myTeamData!, highlight: true, label: '내 팀 등수'),
-                    if (_myTeamData != null)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: Text(
-                          '전체 등수',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
+                      RankingTeamCard(
+                        item: _myTeamData!,
+                        highlight: true,
+                        isMyTeam: true,
+                        label: '내 팀 등수',
                       ),
-                    ...rankings.map((team) => _buildTeamCard(team)),
+                    if (_myTeamData != null)
+                      const RankingSectionHeader(),
+                    ...rankings.map(
+                      (team) => RankingTeamCard(
+                        item: team,
+                        highlight: false,
+                        isMyTeam: team.teamName == _myTeamName,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-    );
-  }
-
-  Widget _buildTeamCard(Map<String, dynamic> team,
-      {bool highlight = false, String? label}) {
-    final teamName = team['teamName'];
-    final averageScore = team['averageScore'];
-    final rank = team['rank'];
-    final isMyTeam = teamName == _myTeamName;
-
-    final backgroundColor =
-    highlight ? Colors.deepPurple[50] : _getMedalBackgroundColorByRank(rank ?? 4);
-    final borderColor = _getMedalBorderColorByRank(rank ?? 4);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (label != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-          ),
-        Card(
-          color: backgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: borderColor!, width: 2),
-          ),
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: ListTile(
-            leading: Text(
-              rank != null ? '$rank등' : '-',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: isMyTeam ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            title: Text(
-              teamName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isMyTeam ? Colors.deepPurple : Colors.black,
-              ),
-            ),
-            trailing: Text(
-              '팀 평균 점수: ${averageScore.toStringAsFixed(1)}',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: isMyTeam ? Colors.deepPurple : Colors.black,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
