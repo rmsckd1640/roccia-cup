@@ -224,3 +224,127 @@ class HomeFooterActions extends StatelessWidget {
     );
   }
 }
+
+class EditUserDialogResult {
+  final String teamName;
+  final String userName;
+  final String role;
+
+  const EditUserDialogResult({
+    required this.teamName,
+    required this.userName,
+    required this.role,
+  });
+}
+
+class EditUserDialog extends StatefulWidget {
+  final String initialTeamName;
+  final String initialUserName;
+  final String initialRole;
+
+  const EditUserDialog({
+    super.key,
+    required this.initialTeamName,
+    required this.initialUserName,
+    required this.initialRole,
+  });
+
+  @override
+  State<EditUserDialog> createState() => _EditUserDialogState();
+}
+
+class _EditUserDialogState extends State<EditUserDialog> {
+  late final TextEditingController _teamController;
+  late final TextEditingController _nameController;
+  late String _selectedRole;
+  String? _teamNameError;
+  String? _userNameError;
+
+  @override
+  void initState() {
+    super.initState();
+    _teamController = TextEditingController(text: widget.initialTeamName);
+    _nameController = TextEditingController(text: widget.initialUserName);
+    _selectedRole = widget.initialRole;
+  }
+
+  @override
+  void dispose() {
+    _teamController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final newTeam = _teamController.text.trim();
+    final newName = _nameController.text.trim();
+
+    setState(() {
+      _teamNameError = newTeam.isEmpty ? '팀명을 입력해주세요' : null;
+      _userNameError = newName.isEmpty ? '이름을 입력해주세요' : null;
+    });
+
+    if (newTeam.isEmpty || newName.isEmpty) return;
+
+    Navigator.of(context).pop(
+      EditUserDialogResult(
+        teamName: newTeam,
+        userName: newName,
+        role: _selectedRole,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('정보 수정'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _teamController,
+            decoration: InputDecoration(
+              labelText: '새 팀명',
+              errorText: _teamNameError,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: '새 이름',
+              errorText: _userNameError,
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _selectedRole,
+            items: const [
+              DropdownMenuItem(value: 'LEADER', child: Text('팀장')),
+              DropdownMenuItem(value: 'MEMBER', child: Text('팀원')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  _selectedRole = value;
+                });
+              }
+            },
+            decoration: const InputDecoration(labelText: '역할 선택'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: _submit,
+          child: const Text('저장', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    );
+  }
+}

@@ -157,150 +157,53 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showEditDialog() {
-    final TextEditingController newTeamController = TextEditingController();
-    final TextEditingController newNameController = TextEditingController();
-    String? teamNameError;
-    String? userNameError;
-    String selectedRole = _role ?? 'MEMBER'; // 현재 역할 기본값
-
-    showDialog(
+  Future<void> _showEditDialog() async {
+    final result = await showDialog<EditUserDialogResult>(
       context: context,
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('정보 수정'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: newTeamController,
-                    decoration: InputDecoration(
-                      labelText: '새 팀명',
-                      errorText: teamNameError,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: newNameController,
-                    decoration: InputDecoration(
-                      labelText: '새 이름',
-                      errorText: userNameError,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: selectedRole,
-                    items: const [
-                      DropdownMenuItem(value: 'LEADER', child: Text('팀장')),
-                      DropdownMenuItem(value: 'MEMBER', child: Text('팀원')),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedRole = value;
-                        });
-                      }
-                    },
-                    decoration: const InputDecoration(labelText: '역할 선택'),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final newTeam = newTeamController.text.trim();
-                    final newName = newNameController.text.trim();
-
-                    setState(() {
-                      teamNameError = newTeam.isEmpty ? '팀명을 입력해주세요' : null;
-                      userNameError = newName.isEmpty ? '이름을 입력해주세요' : null;
-                    });
-
-                    if (newTeam.isEmpty || newName.isEmpty) return;
-
-                    final requestModel = UserUpdateRequest(
-                      teamName: _teamName!,
-                      userName: _userName!,
-                      newTeamName: newTeam,
-                      newUserName: newName,
-                      newRole: selectedRole,
-                    );
-
-                    UIHelpers.showLoading(context);
-
-                    try {
-                      await ApiService.updateUser(requestModel);
-
-                      await SessionService.save(
-                        teamName: newTeam,
-                        userName: newName,
-                        role: selectedRole,
-                      );
-
-                      if (context.mounted) Navigator.of(context).pop();
-
-                      if (!mounted) return;
-                      setState(() { // 상위 위젯의 상태 업데이트
-                        _teamName = newTeam;
-                        _userName = newName;
-                        _role = selectedRole;
-                      });
-
-                      _fetchUserScores();
-                      if (context.mounted) UIHelpers.showSuccessSnackbar(context, '정보가 수정되었습니다.');
-                    } catch (e) {
-                      // 역할만 수정하는 경우 등 특수 케이스 처리 방식 단순화
-                      if (newTeam == _teamName && newName == _userName) {
-                          final session = await SessionService.load();
-                          if (session == null) return;
-                          await SessionService.save(
-                            teamName: session.teamName,
-                            userName: session.userName,
-                            role: selectedRole,
-                          );
-
-                          if (context.mounted) Navigator.of(context).pop();
-
-                          if (!mounted) return;
-                          setState(() {
-                            _role = selectedRole;
-                          });
-                          if (context.mounted) UIHelpers.showSuccessSnackbar(context, '역할이 수정되었습니다.');
-                      } else {
-                         if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text('수정 실패'),
-                              content: Text(e.toString()),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('확인'),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      }
-                    } finally {
-                       if (context.mounted) UIHelpers.hideLoading(context);
-                    }
-                  },
-                  child: const Text('저장', style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (_) => EditUserDialog(
+        initialTeamName: _teamName ?? '',
+        initialUserName: _userName ?? '',
+        initialRole: _role ?? 'MEMBER',
+      ),
     );
+
+    if (result == null || !mounted) return;
+
+    final requestModel = UserUpdateRequest(
+      teamName: _teamName!,
+      userName: _userName!,
+      newTeamName: result.teamName,
+      newUserName: result.userName,
+      newRole: result.role,
+    );
+
+    UIHelpers.showLoading(context);
+
+    try {
+      await ApiService.updateUser(requestModel);
+
+      await SessionService.save(
+        teamName: result.teamName,
+        userName: result.userName,
+        role: result.role,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _teamName = result.teamName;
+        _userName = result.userName;
+        _role = result.role;
+      });
+
+      await _fetchUserScores();
+      if (mounted) UIHelpers.showSuccessSnackbar(context, '정보가 수정되었습니다.');
+    } catch (e) {
+      if (mounted) {
+        UIHelpers.showErrorSnackbar(context, e.toString());
+      }
+    } finally {
+      if (mounted) UIHelpers.hideLoading(context);
+    }
   }
 
 
