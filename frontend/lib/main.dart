@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/api_service.dart';
+import 'services/session_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,17 +15,15 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   Future<Widget> _getInitialScreen() async {
-    final prefs = await SharedPreferences.getInstance();
-    final team = prefs.getString('teamName');
-    final name = prefs.getString('userName');
+    final session = await SessionService.load();
 
-    if (team != null && name != null) {
+    if (session != null) {
       try {
-        await ApiService.getUserScores(team, name);
+        await ApiService.getUserScores(session.teamName, session.userName);
         return const HomeScreen();
       } on ApiException catch (e) {
         if (e.statusCode == 404) {
-          await prefs.clear();
+          await SessionService.clear();
         }
         return const LoginScreen();
       } catch (_) {

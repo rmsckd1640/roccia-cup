@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 import '../models/user_login_request.dart';
 import '../services/api_service.dart';
+import '../services/session_service.dart';
 import '../utils/ui_helpers.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,10 +45,11 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await ApiService.login(requestModel);
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('teamName', teamName);
-      await prefs.setString('userName', userName);
-      await prefs.setString('role', _selectedRole);
+      await SessionService.save(
+        teamName: teamName,
+        userName: userName,
+        role: _selectedRole,
+      );
 
       if (mounted) {
         if (loadingShown) {
