@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/ranking_response.dart';
 
 class RankingScreen extends StatefulWidget {
   const RankingScreen({super.key});
@@ -73,38 +73,42 @@ class _RankingScreenState extends State<RankingScreen> {
   Future<void> _fetchRankings() async {
     final prefs = await SharedPreferences.getInstance();
     final teamName = prefs.getString('teamName') ?? '';
-    final userName = prefs.getString('userName') ?? '';
     _myTeamName = teamName;
 
-    final url = Uri.parse('https://roccia-cup.site/api/rankings');
-    final response = await http.post(
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/rankings');
+    final response = await http.get(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'teamName': teamName, 'userName': userName}),
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      final List<Map<String, dynamic>> rawList = data.map((e) => {
-        'teamName': e['teamName'],
-        'averageScore': e['averageScore'],
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+      
+      // RankingResponse 모델로 1차 파싱 후, 화면 출력용 데이터 추가(rank 등)를 위해 다시 Map 형태로 가공
+      final List<Map<String, dynamic>> rawList = data.map((e) {
+        final model = RankingResponse.fromJson(e);
+        return {
+          'teamName': model.teamName,
+          'averageScore': model.averageScore,
+        };
       }).toList();
 
       setState(() {
         rankings = _applyRankingWithTies(rawList);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('랭킹 정보를 불러오지 못했습니다.')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('랭킹 정보를 불러오지 못했습니다.')),
+        );
+      }
     }
   }
 
   List<Map<String, dynamic>> _applyRankingWithTies(List<Map<String, dynamic>> rawList) {
     rawList.sort((a, b) =>
-        (b['averageScore'].toDouble()).compareTo(a['averageScore'].toDouble()));
-
-
+        (b['averageScore'] as double).compareTo(a['averageScore'] as double));
 
     int rank = 1;
     int count = 1;
@@ -126,8 +130,6 @@ class _RankingScreenState extends State<RankingScreen> {
           (team) => team['teamName'] == _myTeamName,
       orElse: () => {'teamName': _myTeamName, 'averageScore': 0.0, 'rank': null},
     );
-
-
 
     return rawList;
   }
@@ -174,8 +176,6 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-
-
   Widget _buildTeamCard(Map<String, dynamic> team,
       {bool highlight = false, String? label}) {
     final teamName = team['teamName'];
@@ -183,10 +183,9 @@ class _RankingScreenState extends State<RankingScreen> {
     final rank = team['rank'];
     final isMyTeam = teamName == _myTeamName;
 
-    final medalEmoji = _getMedalEmojiByRank(rank);
     final backgroundColor =
-    highlight ? Colors.deepPurple[50] : _getMedalBackgroundColorByRank(rank);
-    final borderColor = _getMedalBorderColorByRank(rank);
+    highlight ? Colors.deepPurple[50] : _getMedalBackgroundColorByRank(rank ?? 4);
+    final borderColor = _getMedalBorderColorByRank(rank ?? 4);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +208,7 @@ class _RankingScreenState extends State<RankingScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: ListTile(
             leading: Text(
-              '$rank등',
+              rank != null ? '$rank등' : '-',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: isMyTeam ? FontWeight.bold : FontWeight.normal,

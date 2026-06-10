@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'login_screen.dart';
+import '../models/score_response.dart';
+import '../models/score_submit_request.dart';
+import '../models/user_update_request.dart';
 import 'ranking_screen.dart';
 
 
@@ -19,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
-  List<Map<String, dynamic>> scoreList = [];
+  List<ScoreResponse> scoreList = [];
   String? _role;
 
   int? _selectedSector;
@@ -32,8 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _calculateTotalScore() {
     return scoreList
-        .where((item) => item['sector'] != '99') // 지구력 제외
-        .fold(0, (sum, item) => sum + int.parse(item['score']));
+        .where((item) => item.sector != 99) // 지구력 제외
+        .fold(0, (sum, item) => sum + item.point);
   }
 
   @override
@@ -60,18 +63,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('https://roccia-cup.site/api/scores/user?teamName=$teamName&userName=$userName');
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/scores/user?teamName=$teamName&userName=$userName');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       setState(() {
-        scoreList = data
-            .map((item) => {
-          'sector': item['sector'].toString(),
-          'score': item['score'].toString(),
-        })
-            .toList();
+        scoreList = data.map((item) => ScoreResponse.fromJson(item)).toList();
       });
     }
   }
@@ -95,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _scoreErrorText = null;
       }
 
-      _alreadySubmitted = scoreList.any((item) => item['sector'] == _selectedSector.toString());
+      _alreadySubmitted = scoreList.any((item) => item.sector == _selectedSector);
     });
 
     final hasError = _selectedSector == null || _scoreErrorText != null || _alreadySubmitted;
@@ -107,18 +106,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('https://roccia-cup.site/api/scores/submit');
-    final body = {
-      'teamName': teamName,
-      'userName': userName,
-      'sector': _selectedSector,
-      'score': parsedScore,
-    };
+    final requestModel = ScoreSubmitRequest(
+      teamName: teamName,
+      userName: userName,
+      sector: _selectedSector!,
+      point: parsedScore!,
+    );
 
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/scores');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
+      body: jsonEncode(requestModel.toJson()),
     );
 
     if (response.statusCode == 200) {
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (teamName == null || userName == null) return;
 
-    final alreadyExists = scoreList.any((item) => item['sector'] == '99');
+    final alreadyExists = scoreList.any((item) => item.sector == 99);
 
     setState(() {
       if (enduranceText.isEmpty) {
@@ -158,16 +158,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_enduranceErrorText != null) return;
 
-    final submitUrl = Uri.parse('https://roccia-cup.site/api/scores/submit');
+    final requestModel = ScoreSubmitRequest(
+      teamName: teamName,
+      userName: userName,
+      sector: 99,
+      point: parsedEndurance!,
+    );
+
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final submitUrl = Uri.parse('$baseUrl/scores');
     final response = await http.post(
       submitUrl,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'teamName': teamName,
-        'userName': userName,
-        'sector': 99,
-        'score': parsedEndurance,
-      }),
+      body: jsonEncode(requestModel.toJson()),
     );
 
     if (response.statusCode == 200) {
@@ -177,9 +180,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _enduranceErrorText = null;
       });
     } else {
-      final responseBody = response.body.isNotEmpty ? jsonDecode(response.body) : null;
-      final errorMessage = responseBody is String
-          ? responseBody
+      final responseBody = response.body.isNotEmpty ? jsonDecode(utf8.decode(response.bodyBytes)) : null;
+      final errorMessage = responseBody is Map && responseBody.containsKey('message')
+          ? responseBody['message']
           : '이미 팀에서 지구력 점수를 제출했습니다.';
       setState(() {
         _enduranceErrorText = errorMessage;
@@ -193,11 +196,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     final teamName = prefs.getString('teamName');
     final userName = prefs.getString('userName');
-    final sector = scoreList[index]['sector'];
+    final sector = scoreList[index].sector;
 
     if (teamName == null || userName == null) return;
 
-    final url = Uri.parse('https://roccia-cup.site/api/scores/delete/$teamName/$userName/$sector');
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/scores/$teamName/$userName/$sector');
     final response = await http.delete(url);
 
     if (response.statusCode == 204) {
@@ -274,19 +278,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     if (newTeam.isEmpty || newName.isEmpty) return;
 
-                    final url = Uri.parse('https://roccia-cup.site/api/users/update');
-                    final body = {
-                      'teamName': _teamName,
-                      'userName': _userName,
-                      'newTeamName': newTeam,
-                      'newUserName': newName,
-                      'newRole': selectedRole,
-                    };
+                    final requestModel = UserUpdateRequest(
+                      teamName: _teamName!,
+                      userName: _userName!,
+                      newTeamName: newTeam,
+                      newUserName: newName,
+                      newRole: selectedRole,
+                    );
 
+                    final baseUrl = dotenv.env['API_BASE_URL'];
+                    final url = Uri.parse('$baseUrl/users');
                     final response = await http.patch(
                       url,
                       headers: {'Content-Type': 'application/json'},
-                      body: jsonEncode(body),
+                      body: jsonEncode(requestModel.toJson()),
                     );
 
                     if (response.statusCode == 200) {
@@ -295,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       await prefs.setString('userName', newName);
                       await prefs.setString('role', selectedRole);
 
-                      Navigator.of(context).pop();
+                      if (context.mounted) Navigator.of(context).pop();
 
                       setState(() {
                         _teamName = newTeam;
@@ -311,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setString('role', selectedRole);
 
-                        Navigator.of(context).pop();
+                        if (context.mounted) Navigator.of(context).pop();
 
                         setState(() {
                           _role = selectedRole;
@@ -320,19 +325,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         final decoded = jsonDecode(utf8.decode(response.bodyBytes));
                         final message = decoded['message'] ?? '중복된 정보 입니다!';
 
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: const Text('중복된 정보'),
-                            content: Text(message),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: const Text('확인'),
-                              ),
-                            ],
-                          ),
-                        );
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text('중복된 정보'),
+                              content: Text(message),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('확인'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
                       }
 
                     }
@@ -499,9 +506,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             title: Text(
-                              item['sector'] == '99'
-                                  ? '지구력 - 점수: ${item['score']}'
-                                  : '섹터 ${item['sector']} - 점수: ${item['score']}',
+                              item.sector == 99
+                                  ? '지구력 - 점수: ${item.point}'
+                                  : '섹터 ${item.sector} - 점수: ${item.point}',
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete),
