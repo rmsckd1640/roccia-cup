@@ -175,14 +175,12 @@ class ScoreListSection extends StatelessWidget {
             final item = scoreList[index];
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                title: Text(
-                  item.sector == 99
-                      ? '지구력 - 점수: ${item.point}'
-                      : '섹터 ${item.sector} - 점수: ${item.point}',
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
+                child: ListTile(
+                  title: Text(
+                    '섹터 ${item.sector} - 점수: ${item.point}',
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
                   onPressed: () => onDelete(index),
                 ),
               ),
