@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleInternalServerError(Exception e) {
-        log.error("최상위 에러 발생: ", e);
+        log.error("처리되지 않은 예외가 발생했습니다.", e);
 
         return ResponseEntity
                 .status(500)
