@@ -3,10 +3,10 @@
 
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    team_name VARCHAR(255),
-    user_name VARCHAR(255),
-    role VARCHAR(50),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    team_name VARCHAR(255) NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_team_user UNIQUE (team_name, user_name)
 );
 
@@ -15,7 +15,7 @@ CREATE TABLE scores (
     user_id BIGINT NOT NULL,
     sector INT NOT NULL,
     point INT NOT NULL,
-    submitted_at DATETIME,
-    CONSTRAINT fk_scores_user FOREIGN KEY (user_id) REFERENCES users(id),
+    submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_scores_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT uk_user_sector UNIQUE (user_id, sector)
 );
