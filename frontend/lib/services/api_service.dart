@@ -104,8 +104,8 @@ class ApiService {
   }
 
   // 유저 정보 수정
-  static Future<UserResponse> updateUser(UserUpdateRequest request) async {
-    final url = Uri.parse('$_baseUrl/users');
+  static Future<UserResponse> updateUser(int userId, UserUpdateRequest request) async {
+    final url = Uri.parse('$_baseUrl/users/$userId');
     return _request(
       () => http.patch(url, headers: _headers, body: jsonEncode(request.toJson())),
       successStatusCode: 200,
@@ -124,13 +124,8 @@ class ApiService {
   }
 
   // 유저 점수 목록 조회
-  static Future<List<ScoreResponse>> getUserScores(String teamName, String userName) async {
-    final url = Uri.parse('$_baseUrl/scores/user').replace(
-      queryParameters: {
-        'teamName': teamName,
-        'userName': userName,
-      },
-    );
+  static Future<List<ScoreResponse>> getUserScores(int userId) async {
+    final url = Uri.parse('$_baseUrl/users/$userId/scores');
     return _requestList(
       () => http.get(url, headers: _headers),
       successStatusCode: 200,
@@ -139,16 +134,8 @@ class ApiService {
   }
 
   // 점수 삭제
-  static Future<void> deleteScore(String teamName, String userName, int sector) async {
-    final url = Uri.parse(_baseUrl).replace(
-      pathSegments: [
-        ...Uri.parse(_baseUrl).pathSegments,
-        'scores',
-        Uri.encodeComponent(teamName),
-        Uri.encodeComponent(userName),
-        sector.toString(),
-      ],
-    );
+  static Future<void> deleteScore(int scoreId) async {
+    final url = Uri.parse('$_baseUrl/scores/$scoreId');
     await _requestVoid(
       () => http.delete(url, headers: _headers),
       successStatusCode: 204,

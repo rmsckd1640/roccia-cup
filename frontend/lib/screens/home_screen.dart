@@ -20,13 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _scoreController = TextEditingController();
 
   List<ScoreResponse> scoreList = [];
-  String? _role;
 
   int? _selectedSector;
   String? _scoreErrorText;
-  bool _alreadySubmitted = false;
-  String? _teamName;
-  String? _userName;
   String? _sectorErrorText;
   UserSession? _session;
 
@@ -37,8 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
-    _fetchUserScores();
+    _initializeUser();
   }
 
   @override
@@ -47,26 +42,23 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserInfo() async {
+  Future<void> _initializeUser() async {
     final session = await SessionService.load();
     if (!mounted) return;
     setState(() {
       _session = session;
-      _role = session?.role ?? 'MEMBER';
-      _teamName = session?.teamName;
-      _userName = session?.userName;
     });
+    await _fetchUserScores();
   }
 
 
   Future<void> _fetchUserScores() async {
-    final teamName = _session?.teamName;
-    final userName = _session?.userName;
+    final userId = _session?.id;
 
-    if (teamName == null || userName == null) return;
+    if (userId == null) return;
 
     try {
-      final scores = await ApiService.getUserScores(teamName, userName);
+      final scores = await ApiService.getUserScores(userId);
       if (!mounted) return;
       setState(() {
         scoreList = scores;
@@ -96,21 +88,17 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         _scoreErrorText = null;
       }
-
-      _alreadySubmitted = scoreList.any((item) => item.sector == _selectedSector);
     });
 
-    final hasError = _selectedSector == null || _scoreErrorText != null || _alreadySubmitted;
+    final hasError = _selectedSector == null || _scoreErrorText != null;
     if (hasError) return;
 
-    final teamName = _session?.teamName;
-    final userName = _session?.userName;
+    final userId = _session?.id;
 
-    if (teamName == null || userName == null) return;
+    if (userId == null) return;
 
     final requestModel = ScoreSubmitRequest(
-      teamName: teamName,
-      userName: userName,
+      userId: userId,
       sector: _selectedSector!,
       point: parsedScore!,
     );
@@ -125,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _scoreController.clear();
       setState(() {
         _selectedSector = null;
-        _alreadySubmitted = false;
       });
       if (mounted) UIHelpers.showSuccessSnackbar(context, '점수가 제출되었습니다.');
     } catch (e) {
@@ -137,17 +124,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _deleteScore(int index) async {
-    final teamName = _session?.teamName;
-    final userName = _session?.userName;
-    final sector = scoreList[index].sector;
-
-    if (teamName == null || userName == null) return;
+    final scoreId = scoreList[index].id;
 
     if (!mounted) return;
     UIHelpers.showLoading(context);
 
     try {
-      await ApiService.deleteScore(teamName, userName, sector);
+      await ApiService.deleteScore(scoreId);
       if (!mounted) return;
       setState(() {
         scoreList.removeAt(index);
@@ -164,17 +147,17 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await showDialog<EditUserDialogResult>(
       context: context,
       builder: (_) => EditUserDialog(
-        initialTeamName: _teamName ?? '',
-        initialUserName: _userName ?? '',
-        initialRole: _role ?? 'MEMBER',
+        initialTeamName: _session?.teamName ?? '',
+        initialUserName: _session?.userName ?? '',
+        initialRole: _session?.role ?? 'MEMBER',
       ),
     );
 
     if (result == null || !mounted) return;
+    final session = _session;
+    if (session == null) return;
 
     final requestModel = UserUpdateRequest(
-      teamName: _teamName!,
-      userName: _userName!,
       newTeamName: result.teamName,
       newUserName: result.userName,
       newRole: result.role,
@@ -183,19 +166,23 @@ class _HomeScreenState extends State<HomeScreen> {
     UIHelpers.showLoading(context);
 
     try {
-      await ApiService.updateUser(requestModel);
+      final user = await ApiService.updateUser(session.id, requestModel);
 
       await SessionService.save(
-        teamName: result.teamName,
-        userName: result.userName,
-        role: result.role,
+        id: user.id,
+        teamName: user.teamName,
+        userName: user.userName,
+        role: user.role,
       );
 
       if (!mounted) return;
       setState(() {
-        _teamName = result.teamName;
-        _userName = result.userName;
-        _role = result.role;
+        _session = UserSession(
+          id: user.id,
+          teamName: user.teamName,
+          userName: user.userName,
+          role: user.role,
+        );
       });
 
       await _fetchUserScores();
@@ -234,21 +221,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     UserInfoCard(
-                      teamName: _teamName,
-                      userName: _userName,
-                      role: _role,
+                      teamName: _session?.teamName,
+                      userName: _session?.userName,
+                      role: _session?.role,
                       totalScore: _calculateTotalScore(),
                     ),
                     ScoreInputSection(
                       selectedSector: _selectedSector,
                       sectorErrorText: _sectorErrorText,
-                      alreadySubmitted: _alreadySubmitted,
                       scoreErrorText: _scoreErrorText,
                       scoreController: _scoreController,
                       onSectorChanged: (value) {
                         setState(() {
                           _selectedSector = value;
-                          _alreadySubmitted = false;
                           _sectorErrorText = null;
                         });
                       },

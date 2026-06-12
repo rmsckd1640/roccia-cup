@@ -1,20 +1,17 @@
 class ScoreSubmitRequest {
-  final String teamName;
-  final String userName;
+  final int userId;
   final int sector;
   final int point;
 
   ScoreSubmitRequest({
-    required this.teamName,
-    required this.userName,
+    required this.userId,
     required this.sector,
     required this.point,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'teamName': teamName,
-      'userName': userName,
+      'userId': userId,
       'sector': sector,
       'point': point,
     };
