@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _teamName;
   String? _userName;
   String? _sectorErrorText;
+  UserSession? _session;
 
   int _calculateTotalScore() {
     return scoreList
@@ -52,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final session = await SessionService.load();
     if (!mounted) return;
     setState(() {
+      _session = session;
       _role = session?.role ?? 'MEMBER';
       _teamName = session?.teamName;
       _userName = session?.userName;
@@ -60,9 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Future<void> _fetchUserScores() async {
-    final session = await SessionService.load();
-    final teamName = session?.teamName;
-    final userName = session?.userName;
+    final teamName = _session?.teamName;
+    final userName = _session?.userName;
 
     if (teamName == null || userName == null) return;
 
@@ -104,9 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final hasError = _selectedSector == null || _scoreErrorText != null || _alreadySubmitted;
     if (hasError) return;
 
-    final session = await SessionService.load();
-    final teamName = session?.teamName;
-    final userName = session?.userName;
+    final teamName = _session?.teamName;
+    final userName = _session?.userName;
 
     if (teamName == null || userName == null) return;
 
@@ -139,9 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void _deleteScore(int index) async {
-    final session = await SessionService.load();
-    final teamName = session?.teamName;
-    final userName = session?.userName;
+    final teamName = _session?.teamName;
+    final userName = _session?.userName;
     final sector = scoreList[index].sector;
 
     if (teamName == null || userName == null) return;
