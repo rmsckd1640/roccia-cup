@@ -12,7 +12,4 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
     List<Score> findByUser(User user);
 
     Optional<Score> findByUserAndSector(User user, int sector);
-
-    void deleteByUser(User user);
-
 }
