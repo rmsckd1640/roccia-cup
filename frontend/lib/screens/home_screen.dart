@@ -31,9 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   UserSession? _session;
 
   int _calculateTotalScore() {
-    return scoreList
-        .where((item) => item.sector != 99) // 지구력 제외
-        .fold(0, (sum, item) => sum + item.point);
+    return scoreList.fold(0, (sum, item) => sum + item.point);
   }
 
   @override
