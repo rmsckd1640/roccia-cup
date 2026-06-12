@@ -4,19 +4,17 @@ import '../models/ranking_response.dart';
 List<RankingDisplayItem> buildRankingDisplayItems(
   List<RankingResponse> responses,
 ) {
-  final sorted = List<RankingResponse>.from(responses)
-    ..sort((a, b) => b.averageScore.compareTo(a.averageScore));
-
   final items = <RankingDisplayItem>[];
   int rank = 1;
   double? previousScore;
 
-  for (var i = 0; i < sorted.length; i++) {
-    final score = sorted[i].averageScore;
+  // 서버가 이미 내림차순 정렬해서 내려주므로, 프론트에서는 rank만 계산한다.
+  for (var i = 0; i < responses.length; i++) {
+    final score = responses[i].averageScore;
     if (previousScore != null && score == previousScore) {
       items.add(
         RankingDisplayItem(
-          teamName: sorted[i].teamName,
+          teamName: responses[i].teamName,
           averageScore: score,
           rank: rank,
         ),
@@ -26,7 +24,7 @@ List<RankingDisplayItem> buildRankingDisplayItems(
       previousScore = score;
       items.add(
         RankingDisplayItem(
-          teamName: sorted[i].teamName,
+          teamName: responses[i].teamName,
           averageScore: score,
           rank: rank,
         ),
