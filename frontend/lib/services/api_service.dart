@@ -26,6 +26,48 @@ class ApiService {
     'Content-Type': 'application/json',
   };
 
+  static Future<T> _request<T>(
+    Future<http.Response> Function() send, {
+    required int successStatusCode,
+    required T Function(dynamic decodedBody) parseBody,
+  }) async {
+    final response = await send();
+
+    if (response.statusCode == successStatusCode) {
+      final decodedBody = jsonDecode(utf8.decode(response.bodyBytes));
+      return parseBody(decodedBody);
+    }
+
+    _handleError(response);
+    throw Exception('Unreachable');
+  }
+
+  static Future<List<T>> _requestList<T>(
+    Future<http.Response> Function() send, {
+    required int successStatusCode,
+    required T Function(Map<String, dynamic> json) fromJson,
+  }) {
+    return _request(
+      send,
+      successStatusCode: successStatusCode,
+      parseBody: (decodedBody) {
+        final List<dynamic> data = decodedBody as List<dynamic>;
+        return data.map((item) => fromJson(item as Map<String, dynamic>)).toList();
+      },
+    );
+  }
+
+  static Future<void> _requestVoid(
+    Future<http.Response> Function() send, {
+    required int successStatusCode,
+  }) async {
+    final response = await send();
+
+    if (response.statusCode != successStatusCode) {
+      _handleError(response);
+    }
+  }
+
   static void _handleError(http.Response response) {
     try {
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
@@ -54,40 +96,31 @@ class ApiService {
   // 로그인
   static Future<UserResponse> login(UserLoginRequest request) async {
     final url = Uri.parse('$_baseUrl/users/login');
-    final response = await http.post(url, headers: _headers, body: jsonEncode(request.toJson()));
-
-    if (response.statusCode == 200) {
-      return UserResponse.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
-    } else {
-      _handleError(response);
-      throw Exception(); // Unreachable, but required by compiler
-    }
+    return _request(
+      () => http.post(url, headers: _headers, body: jsonEncode(request.toJson())),
+      successStatusCode: 200,
+      parseBody: (decodedBody) => UserResponse.fromJson(decodedBody as Map<String, dynamic>),
+    );
   }
 
   // 유저 정보 수정
   static Future<UserResponse> updateUser(UserUpdateRequest request) async {
     final url = Uri.parse('$_baseUrl/users');
-    final response = await http.patch(url, headers: _headers, body: jsonEncode(request.toJson()));
-
-    if (response.statusCode == 200) {
-      return UserResponse.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
-    } else {
-      _handleError(response);
-      throw Exception();
-    }
+    return _request(
+      () => http.patch(url, headers: _headers, body: jsonEncode(request.toJson())),
+      successStatusCode: 200,
+      parseBody: (decodedBody) => UserResponse.fromJson(decodedBody as Map<String, dynamic>),
+    );
   }
 
   // 점수 제출
   static Future<ScoreResponse> submitScore(ScoreSubmitRequest request) async {
     final url = Uri.parse('$_baseUrl/scores');
-    final response = await http.post(url, headers: _headers, body: jsonEncode(request.toJson()));
-
-    if (response.statusCode == 200) {
-      return ScoreResponse.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
-    } else {
-      _handleError(response);
-      throw Exception();
-    }
+    return _request(
+      () => http.post(url, headers: _headers, body: jsonEncode(request.toJson())),
+      successStatusCode: 200,
+      parseBody: (decodedBody) => ScoreResponse.fromJson(decodedBody as Map<String, dynamic>),
+    );
   }
 
   // 유저 점수 목록 조회
@@ -98,15 +131,11 @@ class ApiService {
         'userName': userName,
       },
     );
-    final response = await http.get(url, headers: _headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-      return data.map((item) => ScoreResponse.fromJson(item)).toList();
-    } else {
-      _handleError(response);
-      throw Exception();
-    }
+    return _requestList(
+      () => http.get(url, headers: _headers),
+      successStatusCode: 200,
+      fromJson: ScoreResponse.fromJson,
+    );
   }
 
   // 점수 삭제
@@ -120,24 +149,19 @@ class ApiService {
         sector.toString(),
       ],
     );
-    final response = await http.delete(url, headers: _headers);
-
-    if (response.statusCode != 204) {
-      _handleError(response);
-    }
+    await _requestVoid(
+      () => http.delete(url, headers: _headers),
+      successStatusCode: 204,
+    );
   }
 
   // 랭킹 조회
   static Future<List<RankingResponse>> getRankings() async {
     final url = Uri.parse('$_baseUrl/rankings');
-    final response = await http.get(url, headers: _headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
-      return data.map((item) => RankingResponse.fromJson(item)).toList();
-    } else {
-      _handleError(response);
-      throw Exception();
-    }
+    return _requestList(
+      () => http.get(url, headers: _headers),
+      successStatusCode: 200,
+      fromJson: RankingResponse.fromJson,
+    );
   }
 }
