@@ -111,13 +111,13 @@ class ApiService {
 
   // 점수 삭제
   static Future<void> deleteScore(String teamName, String userName, int sector) async {
-    final url = Uri.parse('$_baseUrl').replace(
+    final url = Uri.parse(_baseUrl).replace(
       pathSegments: [
         ...Uri.parse(_baseUrl).pathSegments,
         'scores',
         Uri.encodeComponent(teamName),
         Uri.encodeComponent(userName),
-        '$sector',
+        sector.toString(),
       ],
     );
     final response = await http.delete(url, headers: _headers);
