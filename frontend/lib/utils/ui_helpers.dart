@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class UIHelpers {
+  static const EdgeInsets _snackbarMargin = EdgeInsets.only(
+    left: 16,
+    right: 16,
+    bottom: 88,
+  );
+
   static void showLoading(BuildContext context) {
     showDialog(
       context: context,
@@ -18,21 +24,29 @@ class UIHelpers {
   }
 
   static void showErrorSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.redAccent,
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        margin: _snackbarMargin,
       ),
     );
   }
 
   static void showSuccessSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: _snackbarMargin,
       ),
     );
   }
