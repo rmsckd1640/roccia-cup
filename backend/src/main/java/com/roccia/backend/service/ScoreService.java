@@ -4,6 +4,8 @@ import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.dto.ScoreResponse;
 import com.roccia.backend.dto.ScoreSubmitRequest;
+import com.roccia.backend.exception.DuplicateResourceException;
+import com.roccia.backend.exception.ScoreNotFoundException;
 import com.roccia.backend.repository.ScoreRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +25,12 @@ public class ScoreService {
 
     @Transactional
     public ScoreResponse submitScore(ScoreSubmitRequest request) {
-        User user = userService.getValidatedUser(request.getTeamName(), request.getUserName());
+        User user = userService.getValidatedUser(request.getUserId());
 
         Optional<Score> existingScore = scoreRepository.findByUserAndSector(user, request.getSector());
 
         if (existingScore.isPresent()) {
-            Score scoreEntity = existingScore.get();
-            scoreEntity.changePoint(request.getPoint());
-            return ScoreResponse.from(scoreEntity);
+            throw new DuplicateResourceException("이미 제출한 섹터입니다. 삭제 후 다시 제출해주세요.");
         }
 
         Score saved = scoreRepository.save(Score.builder()
@@ -43,17 +43,17 @@ public class ScoreService {
     }
 
 
-    public List<ScoreResponse> getScores(String teamName, String userName) {
-        User user = userService.getValidatedUser(teamName, userName);
+    public List<ScoreResponse> getScores(Long userId) {
+        User user = userService.getValidatedUser(userId);
         return scoreRepository.findByUser(user).stream()
                 .map(ScoreResponse::from)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteScore(String teamName, String userName, int sector) {
-        User user = userService.getValidatedUser(teamName, userName);
-        Optional<Score> scoreOpt = scoreRepository.findByUserAndSector(user, sector);
-        scoreOpt.ifPresent(scoreRepository::delete);
+    public void deleteScore(Long scoreId) {
+        Score score = scoreRepository.findById(scoreId)
+                .orElseThrow(ScoreNotFoundException::new);
+        scoreRepository.delete(score);
     }
 }

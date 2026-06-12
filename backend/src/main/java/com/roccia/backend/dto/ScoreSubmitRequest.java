@@ -2,7 +2,7 @@ package com.roccia.backend.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoreSubmitRequest {
-    @NotBlank(message = "팀 이름은 필수입니다.")
-    private String teamName;
-
-    @NotBlank(message = "사용자 이름은 필수입니다.")
-    private String userName;
+    @NotNull(message = "사용자 ID는 필수입니다.")
+    private Long userId;
 
     @Min(value = 1, message = "섹터 번호는 1 이상이어야 합니다.")
     @Max(value = 6, message = "섹터 번호는 6 이하여야 합니다.")

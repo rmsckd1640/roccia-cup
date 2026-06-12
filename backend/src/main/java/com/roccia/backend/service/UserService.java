@@ -33,8 +33,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse updateUser(UserUpdateRequest request) {
-        User currentUser = getValidatedUser(request.getTeamName(), request.getUserName());
+    public UserResponse updateUser(Long userId, UserUpdateRequest request) {
+        User currentUser = getValidatedUser(userId);
 
         // 본인이 아닌데 같은 팀명 + 이름인 유저가 이미 존재할 경우 예외 처리
         Optional<User> existing = userRepository.findByTeamNameAndUserName(
@@ -54,8 +54,8 @@ public class UserService {
         return UserResponse.from(currentUser);
     }
 
-    public User getValidatedUser(String teamName, String userName) {
-        return userRepository.findByTeamNameAndUserName(teamName, userName)
+    public User getValidatedUser(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
     }
 }
