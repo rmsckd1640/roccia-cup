@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
 
     if (session != null) {
       try {
-        await ApiService.getUserScores(session.teamName, session.userName);
+        await ApiService.getUserScores(session.id);
         return const HomeScreen();
       } on ApiException catch (e) {
         if (e.statusCode == 404) {

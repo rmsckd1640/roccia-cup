@@ -90,7 +90,6 @@ class UserInfoCard extends StatelessWidget {
 class ScoreInputSection extends StatelessWidget {
   final int? selectedSector;
   final String? sectorErrorText;
-  final bool alreadySubmitted;
   final String? scoreErrorText;
   final TextEditingController scoreController;
   final ValueChanged<int?> onSectorChanged;
@@ -100,7 +99,6 @@ class ScoreInputSection extends StatelessWidget {
     super.key,
     required this.selectedSector,
     required this.sectorErrorText,
-    required this.alreadySubmitted,
     required this.scoreErrorText,
     required this.scoreController,
     required this.onSectorChanged,
@@ -125,7 +123,7 @@ class ScoreInputSection extends StatelessWidget {
             onChanged: onSectorChanged,
             decoration: InputDecoration(
               labelText: '섹터 번호',
-              errorText: sectorErrorText ?? (alreadySubmitted ? '중복 제출 불가!' : null),
+              errorText: sectorErrorText,
             ),
           ),
         ),

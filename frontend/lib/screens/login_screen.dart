@@ -50,12 +50,13 @@ class _LoginScreenState extends State<LoginScreen> {
     loadingShown = true;
 
     try {
-      await ApiService.login(requestModel);
+      final user = await ApiService.login(requestModel);
 
       await SessionService.save(
-        teamName: teamName,
-        userName: userName,
-        role: _selectedRole,
+        id: user.id,
+        teamName: user.teamName,
+        userName: user.userName,
+        role: user.role,
       );
 
       if (mounted) {
