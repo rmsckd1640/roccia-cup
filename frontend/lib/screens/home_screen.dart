@@ -250,20 +250,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            HomeFooterActions(
-              onEdit: _showEditDialog,
-              onRanking: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (_, __, ___) => const RankingScreen(),
-                    transitionsBuilder: (_, animation, __, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                    transitionDuration: const Duration(milliseconds: 300),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: _showEditDialog,
+                    child: const Text('정보 수정'),
                   ),
-                );
-              },
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => const RankingScreen(),
+                          transitionsBuilder: (_, animation, __, child) {
+                            return FadeTransition(opacity: animation, child: child);
+                          },
+                          transitionDuration: const Duration(milliseconds: 300),
+                        ),
+                      );
+                    },
+                    child: const Text('실시간 팀 랭킹'),
+                  ),
+                ],
+              ),
             ),
           ],
         )

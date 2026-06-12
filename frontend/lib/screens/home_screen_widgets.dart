@@ -190,37 +190,6 @@ class ScoreListSection extends StatelessWidget {
   }
 }
 
-class HomeFooterActions extends StatelessWidget {
-  final VoidCallback onEdit;
-  final VoidCallback onRanking;
-
-  const HomeFooterActions({
-    super.key,
-    required this.onEdit,
-    required this.onRanking,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton(
-            onPressed: onEdit,
-            child: const Text('정보 수정'),
-          ),
-          ElevatedButton(
-            onPressed: onRanking,
-            child: const Text('실시간 팀 랭킹'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class EditUserDialogResult {
   final String teamName;
   final String userName;
