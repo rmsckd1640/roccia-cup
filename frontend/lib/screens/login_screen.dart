@@ -20,6 +20,13 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _teamErrorText;
   String? _nameErrorText;
 
+  @override
+  void dispose() {
+    _teamController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
+
 
   void _login() async {
     final teamName = _teamController.text.trim();
