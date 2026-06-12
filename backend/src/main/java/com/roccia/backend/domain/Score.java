@@ -42,20 +42,12 @@ public class Score {
         this.submittedAt = LocalDateTime.now();
     }
 
-    public void changePoint(int newPoint) {
-        if (newPoint < 0) {
-            throw new IllegalArgumentException("점수는 0 이상이어야 합니다.");
-        }
-        this.point = newPoint;
-        this.submittedAt = LocalDateTime.now();
-    }
-
     private void validate(User user, int sector, int point) {
         if (user == null) {
             throw new IllegalArgumentException("사용자 정보는 필수입니다.");
         }
-        if (sector < 0) {
-            throw new IllegalArgumentException("섹터 번호는 0 이상이어야 합니다.");
+        if (sector < 1 || sector > 6) {
+            throw new IllegalArgumentException("섹터 번호는 1 이상 6 이하여야 합니다.");
         }
         if (point < 0) {
             throw new IllegalArgumentException("점수는 0 이상이어야 합니다.");
