@@ -31,7 +31,12 @@ class ApiService {
     required int successStatusCode,
     required T Function(dynamic decodedBody) parseBody,
   }) async {
-    final response = await send();
+    late final http.Response response;
+    try {
+      response = await send();
+    } catch (_) {
+      throw ApiException('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
 
     if (response.statusCode == successStatusCode) {
       final decodedBody = jsonDecode(utf8.decode(response.bodyBytes));
@@ -61,7 +66,12 @@ class ApiService {
     Future<http.Response> Function() send, {
     required int successStatusCode,
   }) async {
-    final response = await send();
+    late final http.Response response;
+    try {
+      response = await send();
+    } catch (_) {
+      throw ApiException('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
 
     if (response.statusCode != successStatusCode) {
       _handleError(response);
