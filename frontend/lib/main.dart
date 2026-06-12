@@ -11,8 +11,21 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState;
+}
+
+class _MyAppState extends State<MyApp> {
+  late final Future<Widget> _initialScreenFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialScreenFuture = _getInitialScreen();
+  }
 
   Future<Widget> _getInitialScreen() async {
     final session = await SessionService.load();
@@ -29,11 +42,9 @@ class MyApp extends StatelessWidget {
       } catch (_) {
         return const LoginScreen();
       }
-    } else {
-      return const LoginScreen();
     }
+    return const LoginScreen();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +56,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder<Widget>(
-        future: _getInitialScreen(),
+        future: _initialScreenFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Scaffold(
