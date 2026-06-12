@@ -42,6 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchUserScores();
   }
 
+  @override
+  void dispose() {
+    _scoreController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadUserInfo() async {
     final session = await SessionService.load();
     if (!mounted) return;
