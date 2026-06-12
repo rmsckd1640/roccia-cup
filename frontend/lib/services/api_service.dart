@@ -92,7 +92,12 @@ class ApiService {
 
   // 유저 점수 목록 조회
   static Future<List<ScoreResponse>> getUserScores(String teamName, String userName) async {
-    final url = Uri.parse('$_baseUrl/scores/user?teamName=$teamName&userName=$userName');
+    final url = Uri.parse('$_baseUrl/scores/user').replace(
+      queryParameters: {
+        'teamName': teamName,
+        'userName': userName,
+      },
+    );
     final response = await http.get(url, headers: _headers);
 
     if (response.statusCode == 200) {
@@ -106,7 +111,15 @@ class ApiService {
 
   // 점수 삭제
   static Future<void> deleteScore(String teamName, String userName, int sector) async {
-    final url = Uri.parse('$_baseUrl/scores/$teamName/$userName/$sector');
+    final url = Uri.parse('$_baseUrl').replace(
+      pathSegments: [
+        ...Uri.parse(_baseUrl).pathSegments,
+        'scores',
+        Uri.encodeComponent(teamName),
+        Uri.encodeComponent(userName),
+        '$sector',
+      ],
+    );
     final response = await http.delete(url, headers: _headers);
 
     if (response.statusCode != 204) {
