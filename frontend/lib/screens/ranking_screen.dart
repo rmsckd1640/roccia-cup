@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/ranking_response.dart';
 import '../services/api_service.dart';
 import '../services/session_service.dart';
 import '../utils/ui_helpers.dart';
-import '../utils/ranking_utils.dart';
-import '../models/ranking_display_item.dart';
 import 'ranking_screen_widgets.dart';
 
 class RankingScreen extends StatefulWidget {
@@ -15,8 +14,8 @@ class RankingScreen extends StatefulWidget {
 
 class _RankingScreenState extends State<RankingScreen> {
   final ScrollController _scrollController = ScrollController();
-  List<RankingDisplayItem> rankings = [];
-  RankingDisplayItem? _myTeamData;
+  List<RankingResponse> rankings = [];
+  int? _myTeamIndex;
   String? _myTeamName;
   bool _isLoading = true;
 
@@ -38,20 +37,12 @@ class _RankingScreenState extends State<RankingScreen> {
     _myTeamName = teamName;
 
     try {
-      final rankingResponses = await ApiService.getRankings();
-      final displayItems = buildRankingDisplayItems(rankingResponses);
+      final responses = await ApiService.getRankings();
 
       if (mounted) {
         setState(() {
-          rankings = displayItems;
-          _myTeamData = displayItems.firstWhere(
-            (team) => team.teamName == _myTeamName,
-            orElse: () => const RankingDisplayItem(
-              teamName: '',
-              averageScore: 0.0,
-              rank: null,
-            ),
-          );
+          rankings = responses;
+          _myTeamIndex = responses.indexWhere((team) => team.teamName == _myTeamName);
           _isLoading = false;
         });
       }
@@ -63,6 +54,16 @@ class _RankingScreenState extends State<RankingScreen> {
         UIHelpers.showErrorSnackbar(context, e.toString());
       }
     }
+  }
+
+  int _rankAt(int index) {
+    final score = rankings[index].averageScore;
+    for (var i = index - 1; i >= 0; i--) {
+      if (rankings[i].averageScore != score) {
+        return i + 2;
+      }
+    }
+    return 1;
   }
 
   @override
@@ -91,22 +92,25 @@ class _RankingScreenState extends State<RankingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_myTeamData != null)
+                    if (_myTeamIndex != null && _myTeamIndex! >= 0)
                       RankingTeamCard(
-                        item: _myTeamData!,
+                        teamName: rankings[_myTeamIndex!].teamName,
+                        averageScore: rankings[_myTeamIndex!].averageScore,
+                        rank: _rankAt(_myTeamIndex!),
                         highlight: true,
                         isMyTeam: true,
                         label: '내 팀 등수',
                       ),
-                    if (_myTeamData != null)
+                    if (_myTeamIndex != null && _myTeamIndex! >= 0)
                       const RankingSectionHeader(),
-                    ...rankings.map(
-                      (team) => RankingTeamCard(
-                        item: team,
+                    for (var i = 0; i < rankings.length; i++)
+                      RankingTeamCard(
+                        teamName: rankings[i].teamName,
+                        averageScore: rankings[i].averageScore,
+                        rank: _rankAt(i),
                         highlight: false,
-                        isMyTeam: team.teamName == _myTeamName,
+                        isMyTeam: rankings[i].teamName == _myTeamName,
                       ),
-                    ),
                   ],
                 ),
               ),

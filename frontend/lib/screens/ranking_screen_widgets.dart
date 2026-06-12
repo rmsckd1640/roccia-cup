@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/ranking_display_item.dart';
-
 Color? getMedalBackgroundColorByRank(int rank) {
   switch (rank) {
     case 1:
@@ -44,14 +42,18 @@ class RankingSectionHeader extends StatelessWidget {
 }
 
 class RankingTeamCard extends StatelessWidget {
-  final RankingDisplayItem item;
+  final String teamName;
+  final double averageScore;
+  final int rank;
   final bool highlight;
   final String? label;
   final bool isMyTeam;
 
   const RankingTeamCard({
     super.key,
-    required this.item,
+    required this.teamName,
+    required this.averageScore,
+    required this.rank,
     required this.highlight,
     required this.isMyTeam,
     this.label,
@@ -60,8 +62,8 @@ class RankingTeamCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final backgroundColor =
-        highlight ? Colors.deepPurple[50] : getMedalBackgroundColorByRank(item.rank ?? 4);
-    final borderColor = getMedalBorderColorByRank(item.rank ?? 4);
+        highlight ? Colors.deepPurple[50] : getMedalBackgroundColorByRank(rank);
+    final borderColor = getMedalBorderColorByRank(rank);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,21 +86,21 @@ class RankingTeamCard extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: ListTile(
             leading: Text(
-              item.rank != null ? '${item.rank}등' : '-',
+              '$rank등',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: isMyTeam ? FontWeight.bold : FontWeight.normal,
               ),
             ),
             title: Text(
-              item.teamName,
+              teamName,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: isMyTeam ? Colors.deepPurple : Colors.black,
               ),
             ),
             trailing: Text(
-              '팀 평균 점수: ${item.averageScore.toStringAsFixed(1)}',
+              '팀 평균 점수: ${averageScore.toStringAsFixed(1)}',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
