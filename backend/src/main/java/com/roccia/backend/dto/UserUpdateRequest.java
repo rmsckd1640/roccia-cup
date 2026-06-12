@@ -12,12 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequest {
-    @NotBlank(message = "현재 팀 이름은 필수입니다.")
-    private String teamName;
-
-    @NotBlank(message = "현재 사용자 이름은 필수입니다.")
-    private String userName;
-
     @NotBlank(message = "새로운 팀 이름은 필수입니다.")
     private String newTeamName;
 
