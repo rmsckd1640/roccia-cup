@@ -1,0 +1,81 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "127.0.0.1:8081:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    env_file:
+      - ./backend/.env
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    pid: host
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro,rslave
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+
+  promtail:
+    image: grafana/promtail:3.3.2
+    container_name: promtail
+    restart: unless-stopped
+    command:
+      - "-config.file=/etc/promtail/promtail-config.yml"
+      - "-config.expand-env=true"
+    environment:
+      LOKI_URL: "${LOKI_URL:?LOKI_URL is required. Example: LOKI_URL=http://MONITORING_SERVER_PRIVATE_IP:3100/loki/api/v1/push}"
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  mysql-data:

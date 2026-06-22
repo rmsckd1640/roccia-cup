@@ -1,0 +1,15 @@
+# Grafana에게 데이터가 어디에 있는지 알려주는 파일
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
