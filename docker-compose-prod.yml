@@ -63,19 +63,5 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
 
-  promtail:
-    image: grafana/promtail:3.3.2
-    container_name: promtail
-    restart: unless-stopped
-    command:
-      - "-config.file=/etc/promtail/promtail-config.yml"
-      - "-config.expand-env=true"
-    environment:
-      LOKI_URL: "${LOKI_URL:?LOKI_URL is required. Example: LOKI_URL=http://MONITORING_SERVER_PRIVATE_IP:3100/loki/api/v1/push}"
-    volumes:
-      - ./monitoring/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
 volumes:
   mysql-data:
