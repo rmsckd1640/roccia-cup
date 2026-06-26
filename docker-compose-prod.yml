@@ -1,4 +1,21 @@
 services:
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:?NGINX_SERVER_NAME is required}
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - frontend
+      - backend
+
   frontend:
     build:
       context: ./frontend
@@ -22,14 +39,14 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
     env_file:
-      - ./backend/.env
+      - ./.env
 
   mysql:
     image: mysql:8.0
     container_name: mysql
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - ./.env
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
