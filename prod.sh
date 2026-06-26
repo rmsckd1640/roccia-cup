@@ -3,100 +3,58 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${REPO_ROOT}/.env"
+COMPOSE_FILE="${REPO_ROOT}/docker-compose-prod.yml"
 
+# 1. 운영 환경변수를 로드한다.
 if [ ! -f "${ENV_FILE}" ]; then
-    echo "Missing .env file. Create .env in the project root and fill production values first."
+    echo "Missing .env file. Create .env in the project root first."
     exit 1
 fi
 
 set -a
-# shellcheck disable=SC1091
 . "${ENV_FILE}"
 set +a
 
 : "${NGINX_SERVER_NAME:?NGINX_SERVER_NAME is required}"
 
-require_command() {
-    if ! command -v "$1" >/dev/null 2>&1; then
-        echo "Missing required command: $1"
-        exit 1
+# 2. 새 EC2에 필요한 Docker 패키지가 없으면 설치한다.
+install_if_missing() {
+    local command_name="$1"
+    shift
+
+    if ! command -v "${command_name}" >/dev/null 2>&1; then
+        sudo apt-get update
+        sudo apt-get install -y "$@"
     fi
 }
 
-require_command docker
-require_command certbot
+install_if_missing docker docker.io
+
+if command -v systemctl >/dev/null 2>&1; then
+    sudo systemctl enable --now docker
+fi
+
+if ! docker compose version >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y docker-compose-plugin
+fi
 
 if ! docker compose version >/dev/null 2>&1; then
     echo "Missing Docker Compose plugin."
     exit 1
 fi
 
-sudo mkdir -p /var/www/certbot
+# 3. Nginx 컨테이너가 사용할 인증서가 준비되어 있는지 확인한다.
+CERT_DIR="/etc/letsencrypt/live/${NGINX_SERVER_NAME}"
 
-RENEWAL_CONF="/etc/letsencrypt/renewal/${NGINX_SERVER_NAME}.conf"
-DEPLOY_HOOK="deploy_hook = docker exec nginx nginx -s reload || true"
-WEBROOT_PATH="/var/www/certbot"
-
-set_renewal_param() {
-    local key="$1"
-    local value="$2"
-
-    if sudo grep -q "^${key} =" "${RENEWAL_CONF}"; then
-        sudo sed -i.bak "s|^${key} =.*|${key} = ${value}|" "${RENEWAL_CONF}"
-    else
-        sudo sed -i.bak "/^\\[renewalparams\\]/a\\${key} = ${value}" "${RENEWAL_CONF}"
-    fi
-}
-
-configure_webroot_renewal() {
-    echo "Configuring certbot renewal as webroot..."
-
-    set_renewal_param "authenticator" "webroot"
-    set_renewal_param "webroot_path" "${WEBROOT_PATH}"
-
-    if ! sudo grep -q "^\\[\\[webroot_map\\]\\]" "${RENEWAL_CONF}"; then
-        {
-            echo ""
-            echo "[[webroot_map]]"
-        } | sudo tee -a "${RENEWAL_CONF}" >/dev/null
-    fi
-
-    if sudo grep -q "^${NGINX_SERVER_NAME} =" "${RENEWAL_CONF}"; then
-        sudo sed -i.bak "s|^${NGINX_SERVER_NAME} =.*|${NGINX_SERVER_NAME} = ${WEBROOT_PATH}|" "${RENEWAL_CONF}"
-    else
-        echo "${NGINX_SERVER_NAME} = ${WEBROOT_PATH}" | sudo tee -a "${RENEWAL_CONF}" >/dev/null
-    fi
-}
-
-if [ -f "/etc/letsencrypt/live/${NGINX_SERVER_NAME}/fullchain.pem" ]; then
-    echo "Certificate already exists: ${NGINX_SERVER_NAME}"
-else
-    echo "Requesting certificate for ${NGINX_SERVER_NAME}..."
-    sudo certbot certonly --standalone -d "${NGINX_SERVER_NAME}"
-fi
-
-if [ -f "${RENEWAL_CONF}" ]; then
-    configure_webroot_renewal
-
-    echo "Configuring certbot deploy hook..."
-    if sudo grep -q "^deploy_hook =" "${RENEWAL_CONF}"; then
-        sudo sed -i.bak "s|^deploy_hook =.*|${DEPLOY_HOOK}|" "${RENEWAL_CONF}"
-    else
-        echo "${DEPLOY_HOOK}" | sudo tee -a "${RENEWAL_CONF}" >/dev/null
-    fi
-else
-    echo "Missing renewal config: ${RENEWAL_CONF}"
+if [ ! -f "${CERT_DIR}/fullchain.pem" ] || [ ! -f "${CERT_DIR}/privkey.pem" ]; then
+    echo "Missing SSL certificate for ${NGINX_SERVER_NAME}."
+    echo "Issue it on the server first:"
+    echo "  sudo certbot certonly --standalone -d ${NGINX_SERVER_NAME}"
     exit 1
 fi
 
-if command -v systemctl >/dev/null 2>&1; then
-    echo "Enabling certbot timer..."
-    sudo systemctl enable --now certbot.timer
-else
-    echo "systemctl is not available. Configure certbot renew scheduling manually."
-fi
+# 4. 운영 Docker Compose 스택을 빌드하고 실행한다.
+sudo docker compose -f "${COMPOSE_FILE}" up --build -d
 
-echo "Starting production containers..."
-sudo docker compose -f "${REPO_ROOT}/docker-compose-prod.yml" up --build -d
-
-echo "Production initialization completed."
+echo "Production deployment completed."
