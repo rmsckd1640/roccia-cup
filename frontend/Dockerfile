@@ -3,14 +3,11 @@ FROM ghcr.io/cirruslabs/flutter:3.35.7 AS build
 WORKDIR /app
 COPY . .
 RUN flutter pub get
-RUN flutter build web --release
+RUN flutter build web --release --dart-define=API_BASE_URL=/api
 
 FROM nginx:stable-alpine
 
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build/web /usr/share/nginx/html
 
 EXPOSE 80
-# EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]
-

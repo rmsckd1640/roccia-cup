@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../models/user_login_request.dart';
 import '../models/user_response.dart';
@@ -20,7 +19,13 @@ class ApiException implements Exception {
 }
 
 class ApiService {
-  static String get _baseUrl => dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080/api';
+  static const String _apiBaseUrlOverride = String.fromEnvironment('API_BASE_URL');
+  static String get _baseUrl {
+    if (_apiBaseUrlOverride.isNotEmpty) {
+      return _apiBaseUrlOverride;
+    }
+    return 'http://localhost:8080/api';
+  }
 
   static Map<String, String> get _headers => {
     'Content-Type': 'application/json',
