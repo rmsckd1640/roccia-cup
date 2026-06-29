@@ -12,3 +12,6 @@ spring:
 
 server:
   forward-headers-strategy: framework
+
+cors:
+  allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN}

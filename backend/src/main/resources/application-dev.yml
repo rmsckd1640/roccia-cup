@@ -13,3 +13,6 @@ spring:
   h2:
     console:
       enabled: true
+
+cors:
+  allowed-origin-patterns: http://localhost:*,http://127.0.0.1:*,http://[::1]:*
