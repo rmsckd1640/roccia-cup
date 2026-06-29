@@ -1,4 +1,20 @@
 services:
+  nginx:
+    build:
+      context: ./nginx/monitoring
+    container_name: monitoring-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      MONITORING_SERVER_NAME: ${MONITORING_SERVER_NAME:?MONITORING_SERVER_NAME is required}
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - grafana
+
   prometheus:
     image: prom/prometheus:v2.55.1
     container_name: prometheus
@@ -17,11 +33,11 @@ services:
     image: grafana/grafana:11.4.0
     container_name: grafana
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_SERVER_DOMAIN: ${MONITORING_SERVER_NAME:?MONITORING_SERVER_NAME is required}
+      GF_SERVER_ROOT_URL: https://${MONITORING_SERVER_NAME}/
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
