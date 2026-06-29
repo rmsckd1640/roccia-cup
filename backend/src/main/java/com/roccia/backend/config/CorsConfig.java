@@ -1,21 +1,25 @@
 package com.roccia.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
+
+    private final List<String> allowedOriginPatterns;
+
+    public CorsConfig(@Value("${cors.allowed-origin-patterns}") List<String> allowedOriginPatterns) {
+        this.allowedOriginPatterns = allowedOriginPatterns;
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOriginPatterns(
-                        "http://localhost:*",
-                        "http://127.0.0.1:*",
-                        "http://[::1]:*",
-                        "https://roccia-cup.shop"
-                )
+                .allowedOriginPatterns(allowedOriginPatterns.toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
     }
