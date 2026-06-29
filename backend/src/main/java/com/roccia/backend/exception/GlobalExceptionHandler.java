@@ -2,10 +2,16 @@ package com.roccia.backend.exception;
 
 import com.roccia.backend.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import jakarta.validation.ConstraintViolationException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +24,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
         return ResponseEntity
                 .status(e.getStatus())
-                .body(ErrorResponse.builder()
-                        .status(e.getStatus().value())
-                        .error(e.getStatus().name())
-                        .message(e.getMessage())
-                        .build());
+                .body(createErrorResponse(e.getStatus(), e.getMessage()));
     }
 
     // @Valid 검증 실패 시 처리
@@ -37,13 +39,34 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.toList());
 
         return ResponseEntity
-                .status(400)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.builder()
-                        .status(400)
-                        .error("BAD_REQUEST")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .error(HttpStatus.BAD_REQUEST.name())
                         .message("입력값 검증에 실패했습니다.")
                         .errors(fieldErrors)
                         .build());
+    }
+
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class,
+            ConstraintViolationException.class,
+            IllegalArgumentException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequestException(Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(createErrorResponse(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.warn("데이터 무결성 제약 조건을 위반했습니다.", e);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(createErrorResponse(HttpStatus.CONFLICT, "이미 존재하는 데이터입니다."));
     }
 
     @ExceptionHandler(Exception.class)
@@ -51,11 +74,15 @@ public class GlobalExceptionHandler {
         log.error("처리되지 않은 예외가 발생했습니다.", e);
 
         return ResponseEntity
-                .status(500)
-                .body(ErrorResponse.builder()
-                        .status(500)
-                        .error("INTERNAL_SERVER_ERROR")
-                        .message("서버 내부 오류가 발생했습니다.")
-                        .build());
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."));
+    }
+
+    private ErrorResponse createErrorResponse(HttpStatus status, String message) {
+        return ErrorResponse.builder()
+                .status(status.value())
+                .error(status.name())
+                .message(message)
+                .build();
     }
 }
