@@ -29,6 +29,7 @@ public class ScoreController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "점수 제출 성공"),
             @ApiResponse(responseCode = "400", description = "입력값 검증 실패 (섹터 범위 초과, 빈칸 등)", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "이미 제출한 섹터", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "점수를 제출할 유저를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping

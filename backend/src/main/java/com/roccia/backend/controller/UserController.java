@@ -45,7 +45,8 @@ public class UserController {
     @Operation(summary = "사용자 정보 수정", description = "사용자 ID를 기준으로 팀명, 이름 또는 역할을 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "정보 수정 성공"),
-            @ApiResponse(responseCode = "400", description = "입력값 검증 실패 또는 이미 존재하는 팀명/이름 중복", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 팀명/이름 중복", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "수정하려는 기존 유저를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PatchMapping("/{userId}")
