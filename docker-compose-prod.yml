@@ -1,7 +1,7 @@
 services:
   nginx:
     build:
-      context: ./nginx
+      context: ./nginx/prod
     container_name: nginx
     restart: unless-stopped
     ports:
@@ -11,6 +11,7 @@ services:
       NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:?NGINX_SERVER_NAME is required}
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       - frontend
       - backend
@@ -20,8 +21,6 @@ services:
       context: ./frontend
     container_name: frontend
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8081:80"
     depends_on:
       - backend
 
@@ -30,8 +29,6 @@ services:
       context: ./backend
     container_name: backend
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8080:8080"
     depends_on:
       mysql:
         condition: service_healthy

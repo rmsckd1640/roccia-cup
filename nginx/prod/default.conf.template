@@ -10,6 +10,11 @@ server {
     listen 80;
     server_name ${NGINX_SERVER_NAME};
 
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        allow all;
+    }
+
     location / {
         return 308 https://$host$request_uri;
     }
