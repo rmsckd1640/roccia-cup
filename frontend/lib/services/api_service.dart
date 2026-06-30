@@ -20,6 +20,8 @@ class ApiException implements Exception {
 
 class ApiService {
   static const String _apiBaseUrlOverride = String.fromEnvironment('API_BASE_URL');
+  static const Duration _timeout = Duration(seconds: 10);
+
   static String get _baseUrl {
     if (_apiBaseUrlOverride.isNotEmpty) {
       return _apiBaseUrlOverride;
@@ -38,7 +40,7 @@ class ApiService {
   }) async {
     late final http.Response response;
     try {
-      response = await send();
+      response = await send().timeout(_timeout);
     } catch (_) {
       throw ApiException('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
     }
@@ -73,7 +75,7 @@ class ApiService {
   }) async {
     late final http.Response response;
     try {
-      response = await send();
+      response = await send().timeout(_timeout);
     } catch (_) {
       throw ApiException('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
     }
