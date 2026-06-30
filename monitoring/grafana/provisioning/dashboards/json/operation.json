@@ -1,5 +1,8 @@
 {
+  "id": null,
   "title": "Roccia Operation Monitoring",
+  "uid": "roccia-operation",
+  "editable": true,
   "schemaVersion": 39,
   "version": 1,
   "refresh": "30s",
@@ -12,12 +15,12 @@
       "id": 1,
       "type": "timeseries",
       "title": "EC2 CPU",
-      "datasource": null,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 7, "w": 12, "x": 0, "y": 0 },
       "targets": [
         {
           "refId": "A",
-          "datasource": null,
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
           "legendFormat": "Production EC2"
         }
@@ -36,12 +39,12 @@
       "id": 2,
       "type": "timeseries",
       "title": "EC2 Memory",
-      "datasource": null,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 7, "w": 12, "x": 12, "y": 0 },
       "targets": [
         {
           "refId": "A",
-          "datasource": null,
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
           "legendFormat": "Production EC2"
         }
@@ -60,12 +63,12 @@
       "id": 3,
       "type": "timeseries",
       "title": "Swap",
-      "datasource": null,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 7, "w": 12, "x": 0, "y": 7 },
       "targets": [
         {
           "refId": "A",
-          "datasource": null,
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "(1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100",
           "legendFormat": "Production EC2"
         }
@@ -84,12 +87,12 @@
       "id": 4,
       "type": "stat",
       "title": "Target Up",
-      "datasource": null,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 7, "w": 12, "x": 12, "y": 7 },
       "targets": [
         {
           "refId": "A",
-          "datasource": null,
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "up",
           "legendFormat": "{{job}}"
         }
@@ -113,12 +116,12 @@
       "id": 5,
       "type": "timeseries",
       "title": "Container CPU",
-      "datasource": null,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 7, "w": 12, "x": 0, "y": 14 },
       "targets": [
         {
           "refId": "A",
-          "datasource": null,
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "rate(container_cpu_usage_seconds_total{cpu=\"total\",container_label_com_docker_compose_service=~\"backend|mysql|frontend|nginx\"}[1m]) * 100",
           "legendFormat": "{{container_label_com_docker_compose_service}}"
         }
@@ -135,12 +138,12 @@
       "id": 6,
       "type": "timeseries",
       "title": "Container Memory",
-      "datasource": null,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
       "gridPos": { "h": 7, "w": 12, "x": 12, "y": 14 },
       "targets": [
         {
           "refId": "A",
-          "datasource": null,
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "container_memory_working_set_bytes{container_label_com_docker_compose_service=~\"backend|mysql|frontend|nginx\"} / 1024 / 1024",
           "legendFormat": "{{container_label_com_docker_compose_service}}"
         }
