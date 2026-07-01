@@ -1,5 +1,6 @@
 package com.roccia.backend.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class UserLoginRequest {
     @NotBlank(message = "사용자 이름은 필수입니다.")
     private String userName;
 
+    @Schema(description = "참가자 역할", example = "MEMBER", allowableValues = {"LEADER", "MEMBER"})
     @Pattern(regexp = "^(?i)(LEADER|MEMBER)$", message = "역할은 LEADER 또는 MEMBER만 가능합니다.")
-    private String role; // 선택 사항
+    private String role;
 }

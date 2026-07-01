@@ -1,5 +1,6 @@
 package com.roccia.backend.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class UserUpdateRequest {
     @NotBlank(message = "새로운 사용자 이름은 필수입니다.")
     private String newUserName;
 
+    @Schema(description = "변경할 역할", example = "LEADER", allowableValues = {"LEADER", "MEMBER"})
     @Pattern(regexp = "^(?i)(LEADER|MEMBER)$", message = "역할은 LEADER 또는 MEMBER만 가능합니다.")
-    private String newRole; // 선택 사항
+    private String newRole;
 }

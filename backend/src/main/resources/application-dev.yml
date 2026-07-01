@@ -16,3 +16,9 @@ spring:
 
 cors:
   allowed-origin-patterns: http://localhost:*,http://127.0.0.1:*,http://[::1]:*
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

@@ -15,3 +15,9 @@ server:
 
 cors:
   allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

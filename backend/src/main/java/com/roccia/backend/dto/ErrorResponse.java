@@ -1,6 +1,7 @@
 package com.roccia.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,21 +10,36 @@ import java.util.List;
 
 @Getter
 @Builder
+@Schema(description = "에러 응답")
 public class ErrorResponse {
-    @Builder.Default // builder에 명시되어있지 않으면 null로 들어가는거 방어
+    @Schema(description = "에러 발생 시간")
+    @Builder.Default
     private final LocalDateTime timestamp = LocalDateTime.now();
+
+    @Schema(description = "HTTP 상태 코드", example = "400")
     private final int status;
+
+    @Schema(description = "HTTP 상태 이름", example = "BAD_REQUEST")
     private final String error;
+
+    @Schema(description = "에러 메시지", example = "입력값 검증에 실패했습니다.")
     private final String message;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL) // null인 필드는 JSON 응답에서 아예 제외 (의미가 헷갈리지 않게)
+    @Schema(description = "필드 검증 실패 목록")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<FieldError> errors;
 
     @Getter
     @Builder
+    @Schema(description = "필드 검증 실패 상세")
     public static class FieldError {
+        @Schema(description = "검증 실패 필드")
         private final String field;
+
+        @Schema(description = "거절된 값")
         private final String value;
+
+        @Schema(description = "검증 실패 사유")
         private final String reason;
     }
 }

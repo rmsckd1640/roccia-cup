@@ -1,28 +1,33 @@
 package com.roccia.backend.controller;
 
+import com.roccia.backend.dto.ErrorResponse;
+import com.roccia.backend.dto.ScoreResponse;
 import com.roccia.backend.dto.UserLoginRequest;
 import com.roccia.backend.dto.UserResponse;
 import com.roccia.backend.dto.UserUpdateRequest;
-import com.roccia.backend.dto.ScoreResponse;
 import com.roccia.backend.service.ScoreService;
 import com.roccia.backend.service.UserService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.roccia.backend.dto.ErrorResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "User API", description = "사용자 관리 및 인증 관련 API")
+@Tag(name = "Users", description = "참가자 입장, 정보 수정, 참가자 점수 조회 API")
 @RestController
 @RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
@@ -31,11 +36,11 @@ public class UserController {
     private final UserService userService;
     private final ScoreService scoreService;
 
-    // 로그인 (있으면 반환, 없으면 생성)
-    @Operation(summary = "로그인 및 회원가입", description = "팀명과 이름을 입력받아 로그인을 진행합니다. 존재하지 않는 유저라면 자동으로 회원가입 처리됩니다.")
+    @Operation(summary = "참가자 입장", description = "팀명과 이름으로 입장합니다. 등록되지 않은 참가자는 현장 운영 편의를 위해 새로 등록됩니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 성공"),
-            @ApiResponse(responseCode = "400", description = "입력값 검증 실패 (빈칸 또는 역할 오타)", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "입장 성공"),
+            @ApiResponse(responseCode = "400", description = "입력값 검증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "중복 데이터 충돌", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody UserLoginRequest request) {
@@ -46,8 +51,8 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "정보 수정 성공"),
             @ApiResponse(responseCode = "400", description = "입력값 검증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "이미 존재하는 팀명/이름 중복", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "수정하려는 기존 유저를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "404", description = "수정할 사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 팀명과 이름", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PatchMapping("/{userId}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId,
@@ -58,7 +63,7 @@ public class UserController {
     @Operation(summary = "특정 사용자의 전체 점수 조회", description = "사용자 ID를 통해 해당 사용자가 제출한 모든 섹터의 점수를 가져옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
-            @ApiResponse(responseCode = "404", description = "조회할 유저를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{userId}/scores")
     public ResponseEntity<List<ScoreResponse>> getUserScores(@PathVariable Long userId) {
