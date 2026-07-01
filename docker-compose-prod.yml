@@ -34,6 +34,7 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      TZ: Asia/Seoul
     env_file:
       - ./.env
 
@@ -43,6 +44,10 @@ services:
     restart: unless-stopped
     env_file:
       - ./.env
+    environment:
+      TZ: Asia/Seoul
+    command:
+      - --default-time-zone=+09:00
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
