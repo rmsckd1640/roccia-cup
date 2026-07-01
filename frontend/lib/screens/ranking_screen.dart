@@ -14,6 +14,7 @@ class RankingScreen extends StatefulWidget {
 class _RankingScreenState extends State<RankingScreen> {
   final ScrollController _scrollController = ScrollController();
   List<RankingResponse> rankings = [];
+  List<int> ranks = [];
   int? _myTeamIndex;
   String? _myTeamName;
   bool _isLoading = true;
@@ -41,6 +42,7 @@ class _RankingScreenState extends State<RankingScreen> {
       if (mounted) {
         setState(() {
           rankings = responses;
+          ranks = _calculateRanks(responses);
           _myTeamIndex = responses.indexWhere((team) => team.teamName == _myTeamName);
           _isLoading = false;
         });
@@ -55,14 +57,20 @@ class _RankingScreenState extends State<RankingScreen> {
     }
   }
 
-  int _rankAt(int index) {
-    final score = rankings[index].averageScore;
-    for (var i = index - 1; i >= 0; i--) {
-      if (rankings[i].averageScore != score) {
-        return i + 2;
+  List<int> _calculateRanks(List<RankingResponse> rankings) {
+    final result = <int>[];
+
+    for (var i = 0; i < rankings.length; i++) {
+      if (i == 0) {
+        result.add(1);
+      } else if (rankings[i].averageScore == rankings[i - 1].averageScore) {
+        result.add(result[i - 1]);
+      } else {
+        result.add(i + 1);
       }
     }
-    return 1;
+
+    return result;
   }
 
   @override
@@ -95,7 +103,7 @@ class _RankingScreenState extends State<RankingScreen> {
                       RankingTeamCard(
                         teamName: rankings[_myTeamIndex!].teamName,
                         averageScore: rankings[_myTeamIndex!].averageScore,
-                        rank: _rankAt(_myTeamIndex!),
+                        rank: ranks[_myTeamIndex!],
                         highlight: true,
                         isMyTeam: true,
                         label: '내 팀 등수',
@@ -106,7 +114,7 @@ class _RankingScreenState extends State<RankingScreen> {
                       RankingTeamCard(
                         teamName: rankings[i].teamName,
                         averageScore: rankings[i].averageScore,
-                        rank: _rankAt(i),
+                        rank: ranks[i],
                         highlight: false,
                         isMyTeam: rankings[i].teamName == _myTeamName,
                       ),
