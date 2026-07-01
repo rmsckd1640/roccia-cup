@@ -1,8 +1,10 @@
 FROM ghcr.io/cirruslabs/flutter:3.35.7 AS build
 
 WORKDIR /app
-COPY . .
+COPY pubspec.yaml pubspec.lock ./
 RUN flutter pub get
+
+COPY . .
 RUN flutter build web --release --dart-define=API_BASE_URL=/api
 
 FROM nginx:stable-alpine

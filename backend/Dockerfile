@@ -1,7 +1,11 @@
 FROM gradle:8.14.3-jdk21 AS build
 WORKDIR /app
-COPY . .
-RUN ./gradlew clean bootJar -x test --no-daemon
+COPY gradlew build.gradle ./
+COPY gradle gradle
+RUN ./gradlew dependencies --no-daemon
+
+COPY src src
+RUN ./gradlew bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
