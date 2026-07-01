@@ -30,8 +30,8 @@ class _MyAppState extends State<MyApp> {
 
     if (session != null) {
       try {
-        await ApiService.getUserScores(session.id);
-        return const HomeScreen();
+        final scores = await ApiService.getUserScores(session.id);
+        return HomeScreen(initialScores: scores);
       } on ApiException catch (e) {
         if (e.statusCode == 404) {
           await SessionService.clear();

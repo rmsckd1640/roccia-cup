@@ -10,7 +10,12 @@ import 'ranking_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final List<ScoreResponse>? initialScores;
+
+  const HomeScreen({
+    super.key,
+    this.initialScores,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -45,10 +50,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeUser() async {
     final session = await SessionService.load();
     if (!mounted) return;
+
     setState(() {
       _session = session;
+      if (widget.initialScores != null) {
+        scoreList = widget.initialScores!;
+      }
     });
-    await _fetchUserScores();
+
+    if (widget.initialScores == null) {
+      await _fetchUserScores();
+    }
   }
 
 
