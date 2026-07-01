@@ -1,4 +1,4 @@
-package com.roccia.backend.dto;
+package com.roccia.backend.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;

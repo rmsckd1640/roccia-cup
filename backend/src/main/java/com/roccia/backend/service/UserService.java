@@ -2,8 +2,8 @@ package com.roccia.backend.service;
 
 import com.roccia.backend.domain.Role;
 import com.roccia.backend.domain.User;
-import com.roccia.backend.dto.UserResponse;
-import com.roccia.backend.dto.UserUpdateRequest;
+import com.roccia.backend.dto.request.UserUpdateRequest;
+import com.roccia.backend.dto.response.UserResponse;
 import com.roccia.backend.exception.DuplicateResourceException;
 import com.roccia.backend.exception.UserNotFoundException;
 import com.roccia.backend.repository.UserRepository;

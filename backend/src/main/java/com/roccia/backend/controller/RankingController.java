@@ -1,6 +1,6 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.dto.RankingResponse;
+import com.roccia.backend.dto.response.RankingResponse;
 import com.roccia.backend.service.RankingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

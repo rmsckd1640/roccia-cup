@@ -1,8 +1,8 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.dto.ErrorResponse;
-import com.roccia.backend.dto.ScoreResponse;
-import com.roccia.backend.dto.ScoreSubmitRequest;
+import com.roccia.backend.dto.request.ScoreSubmitRequest;
+import com.roccia.backend.dto.response.ErrorResponse;
+import com.roccia.backend.dto.response.ScoreResponse;
 import com.roccia.backend.service.ScoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

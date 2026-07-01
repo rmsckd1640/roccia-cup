@@ -1,10 +1,10 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.dto.ErrorResponse;
-import com.roccia.backend.dto.ScoreResponse;
-import com.roccia.backend.dto.UserLoginRequest;
-import com.roccia.backend.dto.UserResponse;
-import com.roccia.backend.dto.UserUpdateRequest;
+import com.roccia.backend.dto.request.UserLoginRequest;
+import com.roccia.backend.dto.request.UserUpdateRequest;
+import com.roccia.backend.dto.response.ErrorResponse;
+import com.roccia.backend.dto.response.ScoreResponse;
+import com.roccia.backend.dto.response.UserResponse;
 import com.roccia.backend.service.ScoreService;
 import com.roccia.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
