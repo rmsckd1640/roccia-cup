@@ -2,8 +2,8 @@ package com.roccia.backend.service;
 
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
-import com.roccia.backend.dto.ScoreResponse;
-import com.roccia.backend.dto.ScoreSubmitRequest;
+import com.roccia.backend.dto.request.ScoreSubmitRequest;
+import com.roccia.backend.dto.response.ScoreResponse;
 import com.roccia.backend.exception.DuplicateResourceException;
 import com.roccia.backend.exception.ScoreNotFoundException;
 import com.roccia.backend.repository.ScoreRepository;

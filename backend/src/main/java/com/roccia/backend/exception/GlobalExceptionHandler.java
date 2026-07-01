@@ -1,6 +1,6 @@
 package com.roccia.backend.exception;
 
-import com.roccia.backend.dto.ErrorResponse;
+import com.roccia.backend.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

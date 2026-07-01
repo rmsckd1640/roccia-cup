@@ -3,7 +3,7 @@ package com.roccia.backend.service;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.roccia.backend.dto.RankingResponse;
+import com.roccia.backend.dto.response.RankingResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

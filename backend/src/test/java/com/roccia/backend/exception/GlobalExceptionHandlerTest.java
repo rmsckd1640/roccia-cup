@@ -1,6 +1,6 @@
 package com.roccia.backend.exception;
 
-import com.roccia.backend.dto.ErrorResponse;
+import com.roccia.backend.dto.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

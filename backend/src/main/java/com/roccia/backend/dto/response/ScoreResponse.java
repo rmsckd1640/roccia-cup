@@ -1,4 +1,4 @@
-package com.roccia.backend.dto;
+package com.roccia.backend.dto.response;
 
 import com.roccia.backend.domain.Score;
 import lombok.AllArgsConstructor;
