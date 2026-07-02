@@ -4,15 +4,14 @@ import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.dto.request.ScoreSubmitRequest;
 import com.roccia.backend.dto.response.ScoreResponse;
-import com.roccia.backend.exception.DuplicateResourceException;
 import com.roccia.backend.exception.ScoreNotFoundException;
 import com.roccia.backend.repository.ScoreRepository;
+import com.roccia.backend.service.policy.ScoreSubmissionPolicy;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,16 +21,13 @@ public class ScoreService {
 
     private final ScoreRepository scoreRepository;
     private final UserService userService;
+    private final ScoreSubmissionPolicy scoreSubmissionPolicy;
 
     @Transactional
     public ScoreResponse submitScore(ScoreSubmitRequest request) {
         User user = userService.getValidatedUser(request.getUserId());
 
-        Optional<Score> existingScore = scoreRepository.findByUserAndSector(user, request.getSector());
-
-        if (existingScore.isPresent()) {
-            throw new DuplicateResourceException("이미 제출한 섹터입니다. 삭제 후 다시 제출해주세요.");
-        }
+        scoreSubmissionPolicy.validate(user, request);
 
         Score saved = scoreRepository.save(Score.builder()
                 .user(user)
