@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: roccia-local-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: roccia
+      MYSQL_ROOT_PASSWORD: 1234
+      TZ: Asia/Seoul
+    command:
+      - --default-time-zone=+09:00
+    volumes:
+      - roccia-local-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p1234 --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  roccia-local-mysql-data:
