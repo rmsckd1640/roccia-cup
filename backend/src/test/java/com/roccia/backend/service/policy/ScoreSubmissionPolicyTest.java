@@ -1,5 +1,6 @@
 package com.roccia.backend.service.policy;
 
+import com.roccia.backend.IntegrationTestSupport;
 import com.roccia.backend.domain.Role;
 import com.roccia.backend.domain.Score;
 import com.roccia.backend.domain.User;
@@ -9,15 +10,13 @@ import com.roccia.backend.repository.ScoreRepository;
 import com.roccia.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
-class ScoreSubmissionPolicyTest {
+class ScoreSubmissionPolicyTest extends IntegrationTestSupport {
 
     @Autowired
     private ScoreSubmissionPolicy scoreSubmissionPolicy;
