@@ -18,6 +18,7 @@ set +a
 
 : "${APP_SERVER_PRIVATE_IP:?APP_SERVER_PRIVATE_IP is required}"
 : "${MONITORING_SERVER_NAME:?MONITORING_SERVER_NAME is required}"
+: "${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER is required}"
 : "${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}"
 echo "[1/5] Environment loaded."
 
