@@ -25,7 +25,7 @@ run_test() {
 
   echo "Running ${testid}"
 
-  docker run --rm \
+  sudo docker run --rm \
     --network "${DOCKER_NETWORK}" \
     -e K6_PROMETHEUS_RW_SERVER_URL="${PROMETHEUS_RW_URL}" \
     -e K6_PROMETHEUS_RW_TREND_STATS='p(50),p(95),p(99),avg,min,max' \
