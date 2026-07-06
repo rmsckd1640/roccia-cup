@@ -47,11 +47,11 @@ fi
 
 if ! sudo docker compose version >/dev/null 2>&1; then
     sudo apt-get update
-    sudo apt-get install -y docker-compose-plugin
+    sudo apt-get install -y docker-compose-plugin || sudo apt-get install -y docker-compose-v2
 fi
 
 if ! sudo docker compose version >/dev/null 2>&1; then
-    echo "Missing Docker Compose plugin."
+    echo "Missing Docker Compose v2."
     exit 1
 fi
 echo "[2/5] Docker is ready."
