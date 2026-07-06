@@ -1,77 +1,152 @@
-# Roccia Cup 🧗‍♂️  
-클라이밍 대회 점수 계산 및 실시간 랭킹 제공 앱
+<br/>
 
-**🔗 화면 구성 참고** [frontend/README.md](./frontend/README.md)
+# Roccia Cup <img src="./frontend/assets/icons/app-icon.png" align="left" width="100">
 
----
+> 클라이밍 동아리 Roccia901 대회 운영을 위한 점수 제출 및 팀 랭킹 조회 서비스
 
-## 📌 프로젝트 설명
+<br/>
 
-Roccia Cup은 클라이밍 동아리 대회에서의 점수 집계와 랭킹 계산을 자동화하기 위해 개발된 웹 애플리케이션입니다.  
-기존 수기 방식의 불편함과 오류를 개선하고, 운영진과 참가자 모두가 실시간으로 점수를 확인할 수 있는 환경을 제공하고자 제작하였습니다.
+## 개요
 
-편입 이후, 실제로 개발이 어떻게 돌아가는지 직접 체감하고자  
-기획부터 백엔드, 프론트엔드, 배포까지 전 과정을 혼자서 처음부터 부딪혀가며 구현한 프로젝트입니다.
+Roccia Cup은 클라이밍 동아리 Roccia901에서 진행하는 대회의 점수 제출과 팀 랭킹 조회를 지원하는 PWA(Progressive Web App)입니다.
 
-- 실시간 점수 입력 및 팀 랭킹 조회
-- 사용자 정보 수정 기능
-- 중복 입력 방지 로직  
-- 2025년 5월 동아리 대회에 실제 적용
+기존에는 수기로 점수를 제출해야 하는 불편함이 있었고 집계에도 불필요한 시간이 소요되었지만, Roccia Cup을 통해 각자의 모바일 기기에서 점수를 제출하고 팀 랭킹을 바로 확인할 수 있습니다.
 
----
+- [화면 구성](./frontend/README.md)
+- [API 명세서](http://localhost:8080/swagger-ui/index.html) (로컬 서버 실행 후 확인)
+- [개발 기록: EC2 메모리 부족 장애 대응과 모니터링 기반 운영 안정성 검증](https://velog.io/@rmsckd1640/Roccia-Cup-EC2-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%B6%80%EC%A1%B1-%EC%9E%A5%EC%95%A0-%EB%8C%80%EC%9D%91%EA%B3%BC-%EC%9A%B4%EC%98%81-%EC%95%88%EC%A0%95%EC%84%B1-%EA%B2%80%EC%A6%9D)
 
-## 🛠 기술 스택
+## 기능
 
-### 🖥 Frontend
-![](https://img.shields.io/badge/FLUTTER-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![](https://img.shields.io/badge/DART-0175C2?style=for-the-badge&logo=dart&logoColor=white)
-![](https://img.shields.io/badge/ANDROID%20STUDIO-3DDC84?style=for-the-badge&logo=android-studio&logoColor=white)
+| 기능 | 설명 |
+| --- | --- |
+| 참가자 입장 | 팀명, 이름, 역할 기반 참가자 생성 및 입장 |
+| 참가자 정보 수정 | 참가자 팀명, 이름, 역할 수정 |
+| 점수 제출 | 섹터별 점수 제출 |
+| 중복 제출 방지 | 동일 참가자의 동일 섹터 중복 제출 제한 |
+| 제출 점수 조회/삭제 | 참가자별 제출 점수 조회 및 삭제 |
+| 팀 랭킹 조회 | 팀별 평균 점수 기준 랭킹 조회 |
 
-### ⚙️ Backend
-![](https://img.shields.io/badge/SPRINGBOOT-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![](https://img.shields.io/badge/JAVA-007396?style=for-the-badge&logo=java&logoColor=white)
-![](https://img.shields.io/badge/INTELLIJ%20IDEA-FF4088?style=for-the-badge&logo=intellijidea&logoColor=white)
+## 기술 스택
 
+### Frontend
 
-### 🛢 Database
-<div align="left">
-  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
+<div>
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
+  <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" />
 </div>
 
-### ☁️ Infrastructure
-<div align="left">
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white"/>
-  <img src="https://img.shields.io/badge/AWS EC2-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Route 53-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white"/>
+### Backend
+
+<div>
+  <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=openjdk&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring_Data_JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white" />
+  <img src="https://img.shields.io/badge/QueryDSL-0769AD?style=for-the-badge&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Swagger_UI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" />
 </div>
 
----
+### Infra
 
-## 📁 프로젝트 산출물
+<div>
+  <img src="https://img.shields.io/badge/AWS_EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" />
+  <img src="https://img.shields.io/badge/AWS_Route_53-8C4FFF?style=for-the-badge&logo=amazonaws&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white" />
+  <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" />
+  <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" />
+</div>
 
-🔗 트러블 슈팅 - [Trouble Shooting](https://velog.io/@rmsckd1640/AWS-EC2-Read-only-file-system-EBS-%EB%B3%BC%EB%A5%A8-%EB%B6%84%EB%A6%AC-swap-file)  
-📋 [roccia 대회 앱 사용법.pdf](https://github.com/user-attachments/files/23626581/roccia.pdf)
+## 아키텍처
 
+<img width="1200" height="750" alt="아키텍처" src="https://github.com/user-attachments/assets/17694fde-64e6-42ae-a028-8e7c356fdbb3" />
 
-### System Architecture
+## ERD
 
-<img width="621" height="591" alt="스크린샷 2025-11-18 오전 11 46 09" src="https://github.com/user-attachments/assets/3da99f26-c88a-445a-97b9-4e46097ebf11" />
+<img width="900" height="450" alt="ERD" src="https://github.com/user-attachments/assets/44d8e1c5-df1d-44b5-8f4d-808981e47dbd" />
 
-### ERD
+## 시작 가이드
 
-<img width="514" height="222" alt="스크린샷 2025-12-02 오후 4 48 33" src="https://github.com/user-attachments/assets/e2f93866-07b5-45c5-a31a-f72e59d93939" />
+### 로컬 실행
 
----
+Backend:
 
-## 🧠 회고
+```bash
+docker compose -f docker-compose-local.yml up -d
 
-이번 프로젝트는 클라이밍 대회 운영이라는 실제 목적을 바탕으로, 기획부터 개발, 배포까지 전 과정을 혼자 주도하여 진행한 나의 첫 프로젝트였다.  
-단순히 코드를 작성하는 수준을 넘어, 개발이 실제로 어떻게 돌아가는지를 체험할 수 있었으며, 결과보다 그 과정에서 더 많은 것을 배울 수 있었다.
+cd backend
+./gradlew bootRun
+```
 
-처음에는 기능 구현에 집중하였으나, 진행하면서 생각보다 신경 써야 할 요소가 많다는 것을 느꼈다.  
-예를 들어 메모리 사용량 관리, 동시 요청 처리, 서버 보안 설정, 예외 처리 및 에러 핸들링 구조 등은 이번에 충분히 고려하지 못한 부분이었다.
+Frontend:
 
-이러한 시행착오를 통해 단순히 동작하는 코드를 넘어서, 안정적이고 신뢰할 수 있는 서비스를 만들기 위해 어떤 부분을 신경 써야 하는지 구체적으로 알게 되었다.
+```bash
+cd frontend
+flutter pub get
+flutter run -d chrome
+```
 
-다음 프로젝트에서는 이번 경험을 바탕으로, 더 다양한 기능을 포함하고 보안과 성능, 구조적인 완성도까지 고려한 개발을 해보고자 한다.
+### 검증
+
+Backend:
+
+```bash
+cd backend
+./gradlew test
+```
+
+Frontend:
+
+```bash
+cd frontend
+flutter pub get
+flutter analyze
+```
+
+### 운영 환경변수
+
+```env
+NGINX_SERVER_NAME=
+
+MYSQL_DATABASE=
+MYSQL_USER=
+MYSQL_PASSWORD=
+MYSQL_ROOT_PASSWORD=
+
+SPRING_DATASOURCE_URL=
+SPRING_DATASOURCE_USERNAME=
+SPRING_DATASOURCE_PASSWORD=
+CORS_ALLOWED_ORIGIN=
+
+APP_SERVER_PRIVATE_IP=
+MONITORING_SERVER_NAME=
+GRAFANA_ADMIN_USER=
+GRAFANA_ADMIN_PASSWORD=
+
+LOAD_TEST_BASE_URL=
+LOAD_TEST_DOCKER_NETWORK=
+```
+
+### 운영 배포
+
+Service Server:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y certbot
+sudo certbot certonly --standalone -d <서비스_도메인>
+
+./prod.sh
+```
+
+Monitoring Server:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y certbot
+sudo certbot certonly --standalone -d <모니터링_도메인>
+
+./monitor.sh
+```
