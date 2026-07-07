@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../models/user_login_request.dart';
+import '../models/user_entry_request.dart';
 import '../models/user_response.dart';
 import '../models/user_update_request.dart';
 import '../models/score_submit_request.dart';
@@ -110,9 +110,9 @@ class ApiService {
     }
   }
 
-  // 로그인
-  static Future<UserResponse> login(UserLoginRequest request) async {
-    final url = Uri.parse('$_baseUrl/users/login');
+  // 참가자 입장
+  static Future<UserResponse> enter(UserEntryRequest request) async {
+    final url = Uri.parse('$_baseUrl/users');
     return _request(
       () => http.post(url, headers: _headers, body: jsonEncode(request.toJson())),
       successStatusCode: 200,

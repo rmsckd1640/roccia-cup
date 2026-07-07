@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import '../models/user_login_request.dart';
+import '../models/user_entry_request.dart';
 import '../services/api_service.dart';
 import '../services/session_service.dart';
 import '../utils/ui_helpers.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class EntryScreen extends StatefulWidget {
+  const EntryScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<EntryScreen> createState() => _EntryScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _EntryScreenState extends State<EntryScreen> {
   final TextEditingController _teamController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 
-  void _login() async {
+  void _enter() async {
     final teamName = _teamController.text.trim();
     final userName = _nameController.text.trim();
     bool loadingShown = false;
@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (teamName.isEmpty || userName.isEmpty) return;
 
-    final requestModel = UserLoginRequest(
+    final requestModel = UserEntryRequest(
       teamName: teamName,
       userName: userName,
       role: _selectedRole,
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
     loadingShown = true;
 
     try {
-      final user = await ApiService.login(requestModel);
+      final user = await ApiService.enter(requestModel);
 
       await SessionService.save(
         id: user.id,
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('입장'),
         backgroundColor: const Color(0xCB9850F3),
         elevation: 4,
       ),
@@ -144,8 +144,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _login,
-              child: const Text('로그인'),
+              onPressed: _enter,
+              child: const Text('입장'),
             ),
           ],
         ),

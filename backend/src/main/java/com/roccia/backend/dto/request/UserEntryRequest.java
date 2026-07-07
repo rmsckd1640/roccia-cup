@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginRequest {
+public class UserEntryRequest {
     @NotBlank(message = "팀 이름은 필수입니다.")
     private String teamName;
 

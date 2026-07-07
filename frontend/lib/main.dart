@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'screens/entry_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/api_service.dart';
 import 'services/session_service.dart';
@@ -36,12 +36,12 @@ class _MyAppState extends State<MyApp> {
         if (e.statusCode == 404) {
           await SessionService.clear();
         }
-        return const LoginScreen();
+        return const EntryScreen();
       } catch (_) {
-        return const LoginScreen();
+        return const EntryScreen();
       }
     }
-    return const LoginScreen();
+    return const EntryScreen();
   }
 
   @override

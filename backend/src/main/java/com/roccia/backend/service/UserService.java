@@ -21,7 +21,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserResponse joinOrLogin(String teamName, String userName, String role) {
+    public UserResponse enter(String teamName, String userName, String role) {
         Role userRole = (role != null) ? Role.valueOf(role.toUpperCase()) : Role.MEMBER;
         User user = userRepository.findByTeamNameAndUserName(teamName, userName)
                 .orElseGet(() -> userRepository.save(User.builder()

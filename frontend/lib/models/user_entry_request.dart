@@ -1,9 +1,9 @@
-class UserLoginRequest {
+class UserEntryRequest {
   final String teamName;
   final String userName;
   final String? role;
 
-  UserLoginRequest({
+  UserEntryRequest({
     required this.teamName,
     required this.userName,
     this.role,
