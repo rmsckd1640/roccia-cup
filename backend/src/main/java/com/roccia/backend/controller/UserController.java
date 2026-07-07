@@ -1,6 +1,6 @@
 package com.roccia.backend.controller;
 
-import com.roccia.backend.dto.request.UserLoginRequest;
+import com.roccia.backend.dto.request.UserEntryRequest;
 import com.roccia.backend.dto.request.UserUpdateRequest;
 import com.roccia.backend.dto.response.ErrorResponse;
 import com.roccia.backend.dto.response.ScoreResponse;
@@ -42,9 +42,9 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "입력값 검증 실패", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "중복 데이터 충돌", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody UserLoginRequest request) {
-        return ResponseEntity.ok(userService.joinOrLogin(request.getTeamName(), request.getUserName(), request.getRole()));
+    @PostMapping
+    public ResponseEntity<UserResponse> enter(@Valid @RequestBody UserEntryRequest request) {
+        return ResponseEntity.ok(userService.enter(request.getTeamName(), request.getUserName(), request.getRole()));
     }
 
     @Operation(summary = "사용자 정보 수정", description = "사용자 ID를 기준으로 팀명, 이름 또는 역할을 수정합니다.")
