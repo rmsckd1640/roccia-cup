@@ -122,7 +122,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(container_cpu_usage_seconds_total{cpu=\"total\",container_label_com_docker_compose_service=~\"backend|mysql|frontend|nginx\"}[1m]) * 100",
+          "expr": "rate(container_cpu_usage_seconds_total{cpu=\"total\",container_label_com_docker_compose_service=~\"backend|mysql|frontend|nginx|cadvisor|node-exporter\"}[1m]) * 100",
           "legendFormat": "{{container_label_com_docker_compose_service}}"
         }
       ],
@@ -144,7 +144,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "container_memory_working_set_bytes{container_label_com_docker_compose_service=~\"backend|mysql|frontend|nginx\"} / 1024 / 1024",
+          "expr": "container_memory_working_set_bytes{container_label_com_docker_compose_service=~\"backend|mysql|frontend|nginx|cadvisor|node-exporter\"} / 1024 / 1024",
           "legendFormat": "{{container_label_com_docker_compose_service}}"
         }
       ],
