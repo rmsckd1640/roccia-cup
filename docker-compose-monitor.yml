@@ -38,6 +38,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
       GF_SERVER_DOMAIN: ${MONITORING_SERVER_NAME:?MONITORING_SERVER_NAME is required}
       GF_SERVER_ROOT_URL: https://${MONITORING_SERVER_NAME}/
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:?SLACK_WEBHOOK_URL is required}
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro

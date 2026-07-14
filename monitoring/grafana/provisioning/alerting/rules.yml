@@ -1,0 +1,94 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: infra-alerts
+    folder: Roccia Cup
+    interval: 30s
+    rules:
+      - uid: ec2-cpu-high
+        title: EC2 CPU High
+        condition: C
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "EC2 CPU 사용률이 80%를 초과했습니다 (2분 지속)"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              refId: A
+              instant: true
+              expr: 100 - (avg(rate(node_cpu_seconds_total{job="node-exporter", mode="idle"}[5m])) * 100)
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [80]
+
+      - uid: ec2-memory-high
+        title: EC2 Memory High
+        condition: C
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "EC2 메모리 사용률이 85%를 초과했습니다 (1분 지속)"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              refId: A
+              instant: true
+              expr: (1 - (node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"})) * 100
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [85]
+
+      - uid: monitoring-target-down
+        title: Monitoring Target Down
+        condition: C
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "모니터링 대상이 응답하지 않습니다 (up == 0)"
+        data:
+          - refId: A
+            datasourceUid: prometheus
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              refId: A
+              instant: true
+              expr: up
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
