@@ -20,6 +20,7 @@ set +a
 : "${MONITORING_SERVER_NAME:?MONITORING_SERVER_NAME is required}"
 : "${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER is required}"
 : "${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}"
+: "${SLACK_WEBHOOK_URL:?SLACK_WEBHOOK_URL is required}"
 echo "[1/5] Environment loaded."
 
 # 2. 새 EC2에 필요한 Docker 패키지가 없으면 설치한다.
