@@ -26,7 +26,7 @@ public class Score {
 
     private int point;
 
-    @Column(name = "submitted_at")
+    @Column(name = "submitted_at", nullable = false, updatable = false)
     private LocalDateTime submittedAt;
 
     @Builder
