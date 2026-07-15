@@ -8,7 +8,7 @@ upstream frontend {
 
 server {
     listen 80;
-    server_name ${NGINX_SERVER_NAME};
+    server_name ${NGINX_SERVER_NAME} www.${NGINX_SERVER_NAME};
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -22,7 +22,7 @@ server {
 
 server {
     listen 443 ssl;
-    server_name ${NGINX_SERVER_NAME};
+    server_name ${NGINX_SERVER_NAME} www.${NGINX_SERVER_NAME};
 
     ssl_certificate /etc/letsencrypt/live/${NGINX_SERVER_NAME}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${NGINX_SERVER_NAME}/privkey.pem;
