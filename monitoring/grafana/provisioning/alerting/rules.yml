@@ -23,7 +23,7 @@ groups:
             model:
               refId: A
               instant: true
-              expr: 100 - (avg(rate(node_cpu_seconds_total{job="node-exporter", mode="idle"}[5m])) * 100)
+              expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)
           - refId: C
             datasourceUid: __expr__
             model:
@@ -52,7 +52,7 @@ groups:
             model:
               refId: A
               instant: true
-              expr: (1 - (node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"})) * 100
+              expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
           - refId: C
             datasourceUid: __expr__
             model:
