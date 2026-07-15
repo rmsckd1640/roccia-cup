@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.roccia.backend.domain.QScore.score;
+import static com.roccia.backend.domain.QTeam.team;
 import static com.roccia.backend.domain.QUser.user;
 
 @Service
@@ -27,12 +28,13 @@ public class RankingService {
 
         return queryFactory
                 .select(Projections.constructor(RankingResponse.class,
-                        user.teamName,
+                        team.name,
                         teamAverage
                 ))
                 .from(user)
+                .join(user.team, team)
                 .leftJoin(score).on(score.user.eq(user))
-                .groupBy(user.teamName)
+                .groupBy(team.id, team.name)
                 .orderBy(teamAverage.desc())
                 .fetch();
     }

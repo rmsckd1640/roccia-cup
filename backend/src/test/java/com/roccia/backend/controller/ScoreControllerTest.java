@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.roccia.backend.IntegrationTestSupport;
 import com.roccia.backend.domain.Role;
 import com.roccia.backend.domain.Score;
+import com.roccia.backend.domain.Team;
 import com.roccia.backend.domain.User;
 import com.roccia.backend.dto.request.ScoreSubmitRequest;
 import com.roccia.backend.repository.ScoreRepository;
+import com.roccia.backend.repository.TeamRepository;
 import com.roccia.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ class ScoreControllerTest extends IntegrationTestSupport {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
 
     @Autowired
     private ScoreRepository scoreRepository;
@@ -109,8 +114,10 @@ class ScoreControllerTest extends IntegrationTestSupport {
     }
 
     private User saveUser(String teamName, String userName) {
+        Team team = teamRepository.findByName(teamName)
+                .orElseGet(() -> teamRepository.save(Team.builder().name(teamName).build()));
         return userRepository.save(User.builder()
-                .teamName(teamName)
+                .team(team)
                 .userName(userName)
                 .role(Role.MEMBER)
                 .build());
