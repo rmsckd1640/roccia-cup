@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "users",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"team_name", "user_name"})}
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"team_id", "user_name"})}
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,8 +19,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "team_name")
-    private String teamName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", nullable = false)
+    private Team team;
 
     @Column(name = "user_name")
     private String userName;
@@ -32,9 +33,9 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder
-    public User(String teamName, String userName, Role role) {
-        validateName(teamName, userName);
-        this.teamName = teamName;
+    public User(Team team, String userName, Role role) {
+        validateName(team, userName);
+        this.team = team;
         this.userName = userName;
         this.role = role != null ? role : Role.MEMBER;
     }
@@ -44,17 +45,17 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void updateProfile(String teamName, String userName, Role role) {
-        validateName(teamName, userName);
-        this.teamName = teamName;
+    public void updateProfile(Team team, String userName, Role role) {
+        validateName(team, userName);
+        this.team = team;
         this.userName = userName;
         if (role != null) {
             this.role = role;
         }
     }
 
-    private void validateName(String teamName, String userName) {
-        if (!StringUtils.hasText(teamName)) {
+    private void validateName(Team team, String userName) {
+        if (team == null) {
             throw new IllegalArgumentException("팀 이름은 필수이며 비어있을 수 없습니다.");
         }
         if (!StringUtils.hasText(userName)) {
