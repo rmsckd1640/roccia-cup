@@ -24,7 +24,6 @@ set +a
 : "${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL is required}"
 : "${SPRING_DATASOURCE_USERNAME:?SPRING_DATASOURCE_USERNAME is required}"
 : "${SPRING_DATASOURCE_PASSWORD:?SPRING_DATASOURCE_PASSWORD is required}"
-: "${CORS_ALLOWED_ORIGIN:?CORS_ALLOWED_ORIGIN is required}"
 echo "[1/5] Environment loaded."
 
 # 2. 새 EC2에 필요한 Docker 패키지가 없으면 설치한다.
